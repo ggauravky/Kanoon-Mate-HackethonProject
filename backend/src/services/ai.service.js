@@ -35,7 +35,7 @@ const generateFallbackAnalysis = (ocrText, title = '') => {
     section = 'Section 17 (Compulsory Registration)';
   }
 
-  return {
+  const fallbackRaw = {
     documentType: docType,
     language: 'English',
     summary: `This document appears to be a ${docType.toLowerCase()} involving explicit contractual obligations and timeline considerations under Indian jurisdiction.`,
@@ -71,6 +71,8 @@ const generateFallbackAnalysis = (ocrText, title = '') => {
     ],
     disclaimer: 'This analysis is AI-generated for informational purposes and does not constitute formal legal advice. Please consult a registered advocate.'
   };
+
+  return parseAndValidateAIResponse(JSON.stringify(fallbackRaw));
 };
 
 /**

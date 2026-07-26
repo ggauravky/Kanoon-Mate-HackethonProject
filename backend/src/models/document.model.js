@@ -28,6 +28,73 @@ const analysisSchema = new mongoose.Schema(
     },
     questionsYouMayAsk: [{ type: String }],
     disclaimer: { type: String, default: '' },
+
+    // Phase 30 AI Legal Guidance Center Schema
+    emergencyWarning: {
+      detected: { type: Boolean, default: false },
+      warningMessage: { type: String, default: '' },
+    },
+    actionPlan: [
+      {
+        step: { type: Number, default: 1 },
+        title: { type: String, default: '' },
+        description: { type: String, default: '' },
+        priority: { type: String, enum: ['High', 'Medium', 'Low'], default: 'Medium' },
+        estimatedTime: { type: String, default: '' },
+        isMandatory: { type: Boolean, default: true },
+      },
+    ],
+    requiredDocuments: [
+      {
+        name: { type: String, default: '' },
+        reason: { type: String, default: '' },
+        type: { type: String, enum: ['Mandatory', 'Optional', 'Conditional'], default: 'Mandatory' },
+        whyUseful: { type: String, default: '' },
+      },
+    ],
+    evidenceChecklist: [
+      {
+        name: { type: String, default: '' },
+        type: { type: String, enum: ['Digital', 'Physical', 'Witness'], default: 'Digital' },
+        instructions: { type: String, default: '' },
+      },
+    ],
+    contactAuthorities: [
+      {
+        name: { type: String, default: '' },
+        reason: { type: String, default: '' },
+        purpose: { type: String, default: '' },
+        whenToContact: { type: String, default: '' },
+      },
+    ],
+    deadlines: [
+      {
+        deadline: { type: String, default: '' },
+        reason: { type: String, default: '' },
+        priority: { type: String, enum: ['High', 'Medium', 'Low'], default: 'High' },
+      },
+    ],
+    mistakesToAvoid: [
+      {
+        mistake: { type: String, default: '' },
+        consequence: { type: String, default: '' },
+      },
+    ],
+    helpfulSuggestions: [
+      {
+        tip: { type: String, default: '' },
+        category: { type: String, default: 'Documentation' },
+      },
+    ],
+    lawyerRecommendation: {
+      urgency: {
+        type: String,
+        enum: ['Immediately', 'Within a Few Days', 'Optional', 'Not Necessary Yet'],
+        default: 'Within a Few Days',
+      },
+      reason: { type: String, default: '' },
+    },
+    recommendedAdvocateType: { type: String, default: '' },
   },
   { _id: false }
 )

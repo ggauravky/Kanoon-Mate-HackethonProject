@@ -24,6 +24,15 @@ import toast from 'react-hot-toast'
 import SectionCard from '../../components/common/SectionCard'
 import VoicePlayer from '../../components/voice/VoicePlayer'
 import RecommendationBanner from '../../components/advocates/RecommendationBanner'
+import EmergencyWarningBanner from '../../components/guidance/EmergencyWarningBanner'
+import ActionPlanTimeline from '../../components/guidance/ActionPlanTimeline'
+import RequiredDocumentsChecklist from '../../components/guidance/RequiredDocumentsChecklist'
+import EvidenceChecklist from '../../components/guidance/EvidenceChecklist'
+import ContactAuthoritiesCard from '../../components/guidance/ContactAuthoritiesCard'
+import DeadlineTimeline from '../../components/guidance/DeadlineTimeline'
+import MistakesCard from '../../components/guidance/MistakesCard'
+import SuggestionsCard from '../../components/guidance/SuggestionsCard'
+import LawyerRecommendationCard from '../../components/guidance/LawyerRecommendationCard'
 import { documentsAPI, reportsAPI } from '../../services/api'
 
 // ─── Risk Badge Component ───────────────────────────────────────────────────────
@@ -332,6 +341,37 @@ export default function DocumentAnalysis() {
           </div>
         </div>
       </SectionCard>
+
+      {/* ── Phase 30: Emergency Warning Banner (if risk/urgent matter) ────── */}
+      <EmergencyWarningBanner emergencyWarning={analysis.emergencyWarning} />
+
+      {/* ── Phase 30: AI Legal Action Plan ("What Should You Do Next?") ──────── */}
+      <ActionPlanTimeline actionPlan={analysis.actionPlan} />
+
+      {/* ── Phase 30: Required Supporting Documents Checklist ────────────────── */}
+      <RequiredDocumentsChecklist requiredDocuments={analysis.requiredDocuments} />
+
+      {/* ── Phase 30: Evidence Preservation Checklist ────────────────────────── */}
+      <EvidenceChecklist evidenceChecklist={analysis.evidenceChecklist} />
+
+      {/* ── Phase 30: Authorities & Deadlines Grid ────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ContactAuthoritiesCard contactAuthorities={analysis.contactAuthorities} />
+        <DeadlineTimeline deadlines={analysis.deadlines} />
+      </div>
+
+      {/* ── Phase 30: Common Mistakes & Suggestions Grid ─────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <MistakesCard mistakesToAvoid={analysis.mistakesToAvoid} />
+        <SuggestionsCard helpfulSuggestions={analysis.helpfulSuggestions} />
+      </div>
+
+      {/* ── Phase 30: When Should You Hire a Lawyer? ──────────────────────────── */}
+      <LawyerRecommendationCard
+        lawyerRecommendation={analysis.lawyerRecommendation}
+        recommendedAdvocateType={analysis.recommendedAdvocateType}
+        documentId={id}
+      />
 
       {/* ── Grid: Detected Laws + Important Dates ────────────────────────────── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

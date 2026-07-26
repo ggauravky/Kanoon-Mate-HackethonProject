@@ -13,7 +13,7 @@ export const LEGAL_SYSTEM_INSTRUCTION = `You are Kanoon-Mate, an expert Indian l
 - Industrial Relations & Employment Laws
 - Negotiable Instruments Act (Section 138, etc.)
 
-Goal: Explain legal documents in simple language that an average Indian citizen can understand.
+Goal: Act as an intelligent legal assistant that guides citizens on "What should I do next?" with practical, actionable, document-specific advice.
 
 Rules:
 1. Never give misleading legal advice or guarantee case outcomes.
@@ -32,7 +32,7 @@ Rules:
 export const buildLegalAnalysisPrompt = (ocrText, metadata = {}) => {
   const titleInfo = metadata.title ? `Document Title: "${metadata.title}"\n` : '';
 
-  return `${titleInfo}Analyse the following Indian legal document text extracted via OCR and generate structured insights.
+  return `${titleInfo}Analyse the following Indian legal document text extracted via OCR and generate structured insights and an AI Legal Guidance Center.
 
 DOCUMENT TEXT:
 """
@@ -44,36 +44,103 @@ Instructions:
 2. Provide a simple, plain-language explanation of what this document means for the individual.
 3. Extract key obligations, rights, or conditions as keyPoints.
 4. List all explicit or implied important dates/deadlines with their description.
-5. Identify applicable Indian laws, acts, or specific sections (e.g. BNS, BNSS, Consumer Protection Act, NI Act Section 138, etc.) with reasons why they apply.
-6. Provide actionable steps as requiredActions.
-7. Assess overall risk level as "Low", "Medium", or "High" based on penalties, deadlines, or legal implications.
-8. Suggest 3-4 practical questions the user may ask their lawyer or the AI.
-9. Include a standard legal disclaimer.
+5. Identify applicable Indian laws, acts, or specific sections with reasons why they apply.
+6. Check for Emergency Warnings (arrest risk, domestic violence, cyber crime, financial fraud, life threat).
+7. Generate an ordered AI Legal Action Plan (actionPlan) with step #, title, description, priority (High, Medium, Low), estimated time, and mandatory flag.
+8. Generate a Required Supporting Documents Checklist (requiredDocuments) with name, reason, type (Mandatory, Optional, Conditional), and why useful.
+9. Generate an Evidence Checklist (evidenceChecklist) with name, type (Digital, Physical, Witness), and preservation instructions.
+10. Determine exact Government Authorities/Offices to contact (contactAuthorities) with authority name, reason, purpose, and when to contact.
+11. List Important Deadlines (deadlines) with deadline timeframe, reason, and priority.
+12. List Common Legal Mistakes to Avoid (mistakesToAvoid) with mistake description and consequence.
+13. Generate Helpful Suggestions & Tips (helpfulSuggestions) with tip and category.
+14. Determine Lawyer Hiring Recommendation (lawyerRecommendation) with urgency (Immediately, Within a Few Days, Optional, Not Necessary Yet) and detailed reason.
+15. Recommend specific Advocate Category (recommendedAdvocateType) e.g. Property Lawyer, Criminal Lawyer, Consumer Lawyer, Family Lawyer, Employment Lawyer.
+16. Include a legal disclaimer.
 
 Return ONLY a valid JSON object following this exact schema:
 {
-  "documentType": "string (e.g. Rent Agreement, Legal Notice, Sale Deed, Employment Contract, FIR, etc.)",
-  "language": "string (e.g. English, Hindi, Hinglish)",
+  "documentType": "string",
+  "language": "string",
   "summary": "string (2-3 concise summary sentences)",
-  "simpleExplanation": "string (Detailed plain-language breakdown for common citizens)",
+  "simpleExplanation": "string (Plain language breakdown)",
   "keyPoints": ["string"],
   "importantDates": [
     {
-      "date": "string (Date or timeframe)",
-      "description": "string (Event or obligation due)"
+      "date": "string",
+      "description": "string"
     }
   ],
   "detectedLaws": [
     {
-      "act": "string (Name of Act)",
-      "section": "string (Section or Clause if available)",
-      "reason": "string (Why this law/section applies)"
+      "act": "string",
+      "section": "string",
+      "reason": "string"
     }
   ],
-  "requiredActions": ["string"],
   "riskLevel": "Low | Medium | High",
   "questionsYouMayAsk": ["string"],
-  "disclaimer": "This analysis is AI-generated for informational purposes and does not constitute formal legal advice. Please consult a registered advocate for professional legal counsel."
+  "disclaimer": "string",
+  "emergencyWarning": {
+    "detected": true,
+    "warningMessage": "string"
+  },
+  "actionPlan": [
+    {
+      "step": 1,
+      "title": "string",
+      "description": "string",
+      "priority": "High | Medium | Low",
+      "estimatedTime": "string",
+      "isMandatory": true
+    }
+  ],
+  "requiredDocuments": [
+    {
+      "name": "string",
+      "reason": "string",
+      "type": "Mandatory | Optional | Conditional",
+      "whyUseful": "string"
+    }
+  ],
+  "evidenceChecklist": [
+    {
+      "name": "string",
+      "type": "Digital | Physical | Witness",
+      "instructions": "string"
+    }
+  ],
+  "contactAuthorities": [
+    {
+      "name": "string",
+      "reason": "string",
+      "purpose": "string",
+      "whenToContact": "string"
+    }
+  ],
+  "deadlines": [
+    {
+      "deadline": "string",
+      "reason": "string",
+      "priority": "High | Medium | Low"
+    }
+  ],
+  "mistakesToAvoid": [
+    {
+      "mistake": "string",
+      "consequence": "string"
+    }
+  ],
+  "helpfulSuggestions": [
+    {
+      "tip": "string",
+      "category": "Documentation | Communication | Security | Evidence"
+    }
+  ],
+  "lawyerRecommendation": {
+    "urgency": "Immediately | Within a Few Days | Optional | Not Necessary Yet",
+    "reason": "string"
+  },
+  "recommendedAdvocateType": "string"
 }
 `;
 };

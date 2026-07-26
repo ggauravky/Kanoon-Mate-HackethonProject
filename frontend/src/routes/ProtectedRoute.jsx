@@ -4,10 +4,9 @@ import toast from 'react-hot-toast'
 
 /**
  * ProtectedRoute
- * Wraps protected routes. Redirects to '/' with target location state if not authenticated.
- * If `adminOnly` is true, also checks that the user role is admin or super_admin.
+ * Enforces authentication and role-based access control (RBAC).
  */
-export default function ProtectedRoute({ adminOnly = false }) {
+export default function ProtectedRoute({ allowedRole = 'citizen', adminOnly = false }) {
   const { isAuthenticated, user } = useAuth()
   const location = useLocation()
 
@@ -15,9 +14,32 @@ export default function ProtectedRoute({ adminOnly = false }) {
     return <Navigate to="/" state={{ from: location.pathname }} replace />
   }
 
-  if (adminOnly && !(user?.role === 'admin' || user?.role === 'super_admin')) {
-    toast.error('Access denied. Administrator privileges required.')
-    return <Navigate to="/dashboard" replace />
+  // Admin Role Check
+  if (adminOnly || allowedRole === 'admin') {
+    if (!(user?.role === 'admin' || user?.role === 'super_admin')) {
+      toast.error('Access denied. Administrator privileges required.')
+      return <Navigate to={user?.role === 'advocate' ? '/advocate' : '/dashboard'} replace />
+    }
+    return <Outlet />
+  }
+
+  // Advocate Role Check
+  if (allowedRole === 'advocate') {
+    if (user?.role !== 'advocate') {
+      toast.error('Access denied. Verified Advocate account required.')
+      return <Navigate to="/dashboard" replace />
+    }
+    return <Outlet />
+  }
+
+  // Citizen Role Route Protection: Redirect Advocates & Admins to their respective consoles
+  if (allowedRole === 'citizen') {
+    if (user?.role === 'advocate') {
+      return <Navigate to="/advocate" replace />
+    }
+    if (user?.role === 'admin' || user?.role === 'super_admin') {
+      return <Navigate to="/admin" replace />
+    }
   }
 
   return <Outlet />

@@ -11,7 +11,7 @@ export default function AdminNotifications() {
   const [loading, setLoading] = useState(false)
   const [broadcastLog, setBroadcastLog] = useState([
     { id: 'b_1', title: 'System Maintenance Scheduled for 12 AM', message: 'Platform will undergo routine maintenance for 30 minutes.', priority: 'Medium', sentAt: '2025-07-20 14:00', count: 148 },
-    { id: 'b_2', title: 'BNSS 2023 BNSS Legal Rules Updated', message: 'New BNSS 2023 provisions added to LawAssist AI engine.', priority: 'High', sentAt: '2025-07-18 10:30', count: 140 },
+    { id: 'b_2', title: 'BNSS 2023 BNSS Legal Rules Updated', message: 'New BNSS 2023 provisions added to Kanoon-Mate engine.', priority: 'High', sentAt: '2025-07-18 10:30', count: 140 },
   ])
 
   const handleBroadcast = async (e) => {

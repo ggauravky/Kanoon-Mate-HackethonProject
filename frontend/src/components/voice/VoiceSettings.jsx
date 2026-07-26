@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Volume2, Languages, Gauge, Sparkles, X, Check } from 'lucide-react'
 import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis'
 
-const STORAGE_KEY = 'lawassist_voice_settings'
+const STORAGE_KEY = 'kanoon_mate_voice_settings'
 
 export function getStoredVoiceSettings() {
   try {

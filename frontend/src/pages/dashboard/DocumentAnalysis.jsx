@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   ArrowLeft,
+  ArrowRight,
+  Users,
   Bot,
   Sparkles,
   AlertTriangle,
@@ -21,6 +23,7 @@ import {
 import toast from 'react-hot-toast'
 import SectionCard from '../../components/common/SectionCard'
 import VoicePlayer from '../../components/voice/VoicePlayer'
+import RecommendationBanner from '../../components/advocates/RecommendationBanner'
 import { documentsAPI, reportsAPI } from '../../services/api'
 
 // ─── Risk Badge Component ───────────────────────────────────────────────────────
@@ -67,11 +70,23 @@ export default function DocumentAnalysis() {
 
     setGeneratingReport(true)
     try {
-      await reportsAPI.generateReport(id)
-      toast.success('Legal PDF report generated successfully!')
-      navigate('/dashboard/reports')
+      const response = await reportsAPI.generatePDFReport(id)
+      const sanitizedTitle = (docData?.title || 'Legal_Document').replace(/[^a-zA-Z0-9]/g, '_')
+      const fileName = `Legal_Report_${sanitizedTitle}.pdf`
+
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', fileName)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+      toast.success('Legal PDF report downloaded successfully!')
     } catch (err) {
-      toast.error(err.message || 'Failed to generate PDF report')
+      toast.error(err.message || 'Failed to download PDF report')
     } finally {
       setGeneratingReport(false)
     }
@@ -151,7 +166,7 @@ export default function DocumentAnalysis() {
 
         <div className="space-y-2">
           <h2 className="text-xl font-bold text-[var(--color-text)]">
-            Analyzing Legal Document with Gemini AI...
+            Analyzing Legal Document with AI Agent...
           </h2>
           <p className="text-sm text-[var(--color-text-muted)] max-w-sm mx-auto">
             Extracting clauses, referencing Indian law acts (BNS, BNSS, BSA), evaluating risks, and translating legal jargon.
@@ -253,6 +268,32 @@ export default function DocumentAnalysis() {
           {analysis.summary}
         </p>
       </SectionCard>
+
+      {/* ── AI Advocate Matcher Banner ────────────────────────────────────────── */}
+      <RecommendationBanner documentId={id} />
+
+      {/* ── Recommended Next Steps CTA ───────────────────────────────────────────── */}
+      <div className="rounded-2xl bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 p-5 text-white shadow-lg border border-indigo-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-indigo-300">
+            <Users size={20} />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold">Recommended Next Steps</h4>
+            <p className="text-xs text-indigo-200">
+              Connect with top verified lawyers specializing in {analysis.documentType || 'this legal category'} near your location.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to={`/dashboard/advocates/recommended/${id}`}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold py-2.5 px-5 text-xs shadow-md transition-all shrink-0 hover:scale-[1.02]"
+        >
+          <span>Find Recommended Advocates</span>
+          <ArrowRight size={15} />
+        </Link>
+      </div>
 
       {/* ── Simple Explanation with Voice Read Aloud ────────────────────────────── */}
       <SectionCard>

@@ -46,7 +46,7 @@ export default function AdminSidebar() {
               <ShieldCheck size={20} />
             </div>
             <div>
-              <span className="text-sm font-bold tracking-tight text-white block">LawAssist AI</span>
+              <span className="text-sm font-bold tracking-tight text-white block">Kanoon-Mate</span>
               <span className="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest">
                 Admin Console
               </span>

@@ -12,7 +12,7 @@ const API = axios.create({
 // Request interceptor — attach token if stored in localStorage
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('kanoon_mate_token') || localStorage.getItem('lawassist_token')
+    const token = localStorage.getItem('kanoon_mate_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -82,9 +82,8 @@ export const remindersAPI = {
 export const reportsAPI = {
   getReports: (params) => API.get('/reports', { params }),
   getReportById: (id) => API.get(`/reports/${id}`),
-  generateReport: (data) => API.post('/reports/generate', data),
+  generateReport: (documentId) => API.post(`/reports/${documentId}/generate`),
   generatePDFReport: (documentId) => API.get(`/reports/pdf/${documentId}`, { responseType: 'blob' }),
-  exportSummaryJSON: (documentId) => API.get(`/reports/json/${documentId}`),
   deleteReport: (id) => API.delete(`/reports/${id}`),
 }
 
@@ -113,6 +112,25 @@ export const adminAPI = {
   updateUser: (id, updateData) => API.patch(`/admin/users/${id}`, updateData),
   deleteUser: (id) => API.delete(`/admin/users/${id}`),
   broadcastNotification: (data) => API.post('/admin/notifications/broadcast', data),
+}
+
+// ─── Advocate Directory & AI Recommendation Endpoints ─────────────────────────
+export const advocatesAPI = {
+  getAdvocates: (params) => API.get('/advocates', { params }),
+  getAdvocateById: (id) => API.get(`/advocates/${id}`),
+  getRecommended: (documentId) => API.get(`/advocates/recommended/${documentId}`),
+  toggleFavorite: (id) => API.post(`/advocates/${id}/favorite`),
+  getFavorites: () => API.get('/advocates/favorites'),
+}
+
+// ─── Advocate Dedicated Dashboard Endpoints ─────────────────────────────────
+export const advocateAPI = {
+  getDashboard: () => API.get('/advocate/dashboard'),
+  getProfile: () => API.get('/advocate/profile'),
+  updateProfile: (profileData) => API.put('/advocate/profile', profileData),
+  getClientRequests: (params) => API.get('/advocate/client-requests', { params }),
+  updateRequestStatus: (id, status) => API.patch(`/advocate/client-requests/${id}`, { status }),
+  getAnalytics: () => API.get('/advocate/analytics'),
 }
 
 export default API

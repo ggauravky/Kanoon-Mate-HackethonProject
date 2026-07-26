@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Mail, Lock, User, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
+import { X, Mail, Lock, User, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, Sparkles, MapPin, Phone, Briefcase } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 
@@ -10,11 +10,24 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', redi
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Form State
+  // Common Form State
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('citizen')
+  const [phone, setPhone] = useState('')
+  const [city, setCity] = useState('Delhi')
+  const [state, setState] = useState('Delhi')
+  const [pincode, setPincode] = useState('110001')
+  const [preferredLanguage, setPreferredLanguage] = useState('English')
+
+  // Advocate Specific Form State
+  const [barCouncilNumber, setBarCouncilNumber] = useState('')
+  const [experience, setExperience] = useState('5')
+  const [practiceAreas, setPracticeAreas] = useState('Property Lawyer, Civil Lawyer')
+  const [consultationFee, setConsultationFee] = useState('1200')
+  const [officeAddress, setOfficeAddress] = useState('')
+
   const [error, setError] = useState('')
 
   if (!isOpen) return null
@@ -23,6 +36,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', redi
     setEmail('gaurav@gmail.com')
     setPassword('DemoPass@123')
     setFullName('Gaurav Kumar Yadav')
+    setCity('Delhi')
+    setState('Delhi')
+    setPhone('+91 9876543210')
     setError('')
   }
 
@@ -45,13 +61,32 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', redi
     }
 
     try {
+      let loggedInUser = null
       if (mode === 'login') {
-        await login(email, password)
+        loggedInUser = await login(email, password)
       } else {
-        await register({ fullName, email, password, role })
+        loggedInUser = await register({
+          fullName,
+          email,
+          password,
+          role,
+          phone,
+          city,
+          state,
+          pincode,
+          preferredLanguage,
+          barCouncilNumber,
+          experience,
+          practiceAreas,
+          consultationFee,
+          officeAddress,
+        })
       }
       onClose()
-      const destination = redirectPath || location.state?.from || '/dashboard'
+
+      const targetRole = loggedInUser?.role || role
+      const defaultPath = targetRole === 'advocate' ? '/advocate' : targetRole === 'admin' ? '/admin' : '/dashboard'
+      const destination = redirectPath || location.state?.from || defaultPath
       navigate(destination)
     } catch (err) {
       setError(err.message || 'Authentication failed. Please check your inputs.')
@@ -76,10 +111,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', redi
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-100"
+          className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-100"
         >
           {/* Top Header Banner */}
-          <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 p-6 text-white relative">
+          <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 p-6 text-white relative sticky top-0 z-20">
             <button
               onClick={onClose}
               className="absolute top-4 right-4 rounded-full p-1 text-white/80 hover:bg-white/10 hover:text-white transition-colors"
@@ -102,7 +137,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', redi
             </h2>
             <p className="text-xs text-blue-100/90 mt-1">
               {mode === 'login'
-                ? 'Access your legal documents, AI chat, & deadline tracker'
+                ? 'Access your legal documents, AI chat, & advocate recommendations'
                 : 'Empowering Indian citizens with simple legal clarity'}
             </p>
 
@@ -205,29 +240,124 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', redi
 
             {/* Role Selection (Register Only) */}
             {mode === 'register' && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Primary Role</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'citizen', label: 'Citizen' },
-                    { id: 'law_student', label: 'Law Student' },
-                    { id: 'advocate', label: 'Advocate' },
-                  ].map((r) => (
-                    <button
-                      type="button"
-                      key={r.id}
-                      onClick={() => setRole(r.id)}
-                      className={`py-1.5 px-2 text-xs font-medium rounded-lg border text-center transition-all ${
-                        role === r.id
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 font-semibold'
-                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      {r.label}
-                    </button>
-                  ))}
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Account Role</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'citizen', label: 'Citizen / Client' },
+                      { id: 'advocate', label: 'Verified Advocate' },
+                    ].map((r) => (
+                      <button
+                        type="button"
+                        key={r.id}
+                        onClick={() => setRole(r.id)}
+                        className={`py-2 px-3 text-xs font-medium rounded-xl border text-center transition-all ${
+                          role === r.id
+                            ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold shadow-sm'
+                            : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+
+                {/* Location & City Fields */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">City</label>
+                    <div className="relative">
+                      <MapPin size={16} className="absolute left-3 top-2.5 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="e.g. Delhi"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-800 outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">State</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Delhi"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs text-slate-800 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
+                  <div className="relative">
+                    <Phone size={16} className="absolute left-3 top-2.5 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="+91 9876543210"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-800 outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Advocate Specific Inputs */}
+                {role === 'advocate' && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3 pt-2 border-t border-slate-100">
+                    <p className="text-xs font-bold text-indigo-700 flex items-center gap-1">
+                      <Briefcase size={14} /> Advocate Verification Details
+                    </p>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Bar Council Registration No.</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. D/1234/2015"
+                        value={barCouncilNumber}
+                        onChange={(e) => setBarCouncilNumber(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 px-3 text-xs text-slate-800 outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Experience (Years)</label>
+                        <input
+                          type="number"
+                          value={experience}
+                          onChange={(e) => setExperience(e.target.value)}
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 px-3 text-xs text-slate-800 outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">Fee (₹ / Consult)</label>
+                        <input
+                          type="number"
+                          value={consultationFee}
+                          onChange={(e) => setConsultationFee(e.target.value)}
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 px-3 text-xs text-slate-800 outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">Practice Areas (comma separated)</label>
+                      <input
+                        type="text"
+                        placeholder="Property Lawyer, Civil Lawyer, Criminal Lawyer"
+                        value={practiceAreas}
+                        onChange={(e) => setPracticeAreas(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 px-3 text-xs text-slate-800 outline-none"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </>
             )}
 
             {/* Demo Credential Autofill Helper */}

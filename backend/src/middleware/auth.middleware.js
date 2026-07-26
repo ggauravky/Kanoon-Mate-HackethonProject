@@ -49,3 +49,19 @@ export const protect = async (req, res, next) => {
     })
   }
 }
+
+/**
+ * Authorization Middleware (RBAC)
+ * Restricts route access to specified user roles (e.g. 'advocate', 'admin', 'citizen')
+ */
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Access denied. Role (${req.user?.role || 'guest'}) is not authorized to access this resource.`,
+      })
+    }
+    next()
+  }
+}

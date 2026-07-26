@@ -1,6 +1,7 @@
 import dns from "node:dns";
 import mongoose from "mongoose";
 import { seedLegalServices } from "../seeds/legalServices.seed.js";
+import { seedAdvocates } from "../seeds/advocates/seedAdvocates.js";
 
 const getMongoDnsServers = () => {
     const configuredServers = process.env.MONGO_DNS_SERVERS
@@ -38,8 +39,9 @@ export const connectDB = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log("MongoDB connected successfully");
 
-        // Seed sample Legal Services if collection is empty
+        // Seed sample Legal Services & Advocates if collection is empty
         await seedLegalServices();
+        await seedAdvocates();
     } catch (error) {
         console.error("Error connecting to MongoDB:", error);
     }

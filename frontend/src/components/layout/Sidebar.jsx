@@ -19,6 +19,7 @@ import {
   HeartHandshake,
   Bell,
   Sparkles,
+  Users,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
@@ -28,6 +29,7 @@ const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard', end: true },
   { id: 'documents', label: 'My Documents', icon: FileText, to: '/dashboard/documents' },
   { id: 'upload', label: 'Upload Document', icon: Upload, to: '/dashboard/upload' },
+  { id: 'advocates', label: 'Advocate Directory', icon: Users, to: '/dashboard/advocates' },
   { id: 'legal-hub', label: 'Legal Help Hub', icon: HeartHandshake, to: '/dashboard/legal-hub' },
   { id: 'reports', label: 'Legal Reports', icon: FileCheck2, to: '/dashboard/reports' },
   { id: 'chat', label: 'AI Assistant', icon: Bot, to: '/dashboard/chat' },
@@ -150,7 +152,7 @@ function SidebarContent({ collapsed, onClose }) {
             >
               <div className="flex items-center gap-1.5">
                 <span className="text-white font-extrabold text-sm tracking-tight whitespace-nowrap">
-                  LawAssist AI
+                  Kanoon-Mate
                 </span>
                 <span className="rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 text-[9px] font-extrabold uppercase">
                   PRO

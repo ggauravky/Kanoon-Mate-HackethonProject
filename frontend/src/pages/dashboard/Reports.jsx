@@ -92,7 +92,7 @@ export default function Reports() {
     const link = document.createElement('a')
     link.href = downloadUrl
     link.target = '_blank'
-    link.download = report.reportName || 'LawAssist_Legal_Report.pdf'
+    link.download = report.reportName || 'Kanoon-Mate_Legal_Report.pdf'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -299,7 +299,7 @@ export default function Reports() {
                   <FileCheck2 className="text-indigo-600" size={20} />
                   <div>
                     <h3 className="text-xs font-bold text-slate-900">{selectedReport.reportName}</h3>
-                    <p className="text-[11px] text-slate-500">LawAssist AI Legal Analysis Report</p>
+                    <p className="text-[11px] text-slate-500">Kanoon-Mate Legal Analysis Report</p>
                   </div>
                 </div>
 

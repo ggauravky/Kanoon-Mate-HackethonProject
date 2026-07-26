@@ -87,7 +87,7 @@ export const generateLegalAnalysisService = async (ocrText, metadata = {}) => {
     throw error;
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API;
   const isKeyConfigured = apiKey && apiKey !== 'your_gemini_api_key_here' && apiKey.length > 10;
 
   const prompt = buildLegalAnalysisPrompt(ocrText, metadata);

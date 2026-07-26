@@ -1,6 +1,6 @@
 import { emergencyHelplines, legalResources } from '../data/legalHubData'
 
-const FAVORITES_KEY = 'lawassist_legal_hub_favorites'
+const FAVORITES_KEY = 'kanoon_mate_legal_hub_favorites'
 
 /**
  * Get saved favorite legal resource IDs from localStorage

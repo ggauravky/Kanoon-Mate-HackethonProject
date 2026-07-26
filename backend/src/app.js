@@ -12,6 +12,8 @@ import reportRoutes from './routes/report.routes.js'
 import legalServiceRoutes from './routes/legalService.routes.js'
 import notificationRoutes from './routes/notification.routes.js'
 import adminRoutes from './routes/admin.routes.js'
+import advocateRoutes from './routes/advocate.routes.js'
+import advocateDashboardRoutes from './routes/advocateDashboard.routes.js'
 
 const app = express()
 
@@ -50,6 +52,8 @@ app.use('/api/v1/reports', reportRoutes)
 app.use('/api/v1/legal-services', legalServiceRoutes)
 app.use('/api/v1/notifications', notificationRoutes)
 app.use('/api/v1/admin', adminRoutes)
+app.use('/api/v1/advocates', advocateRoutes)
+app.use('/api/v1/advocate', advocateDashboardRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {

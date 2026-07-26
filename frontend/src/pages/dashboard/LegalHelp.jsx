@@ -75,7 +75,7 @@ export default function LegalHelp() {
   // Count bookmarks from localStorage
   const updateBookmarkCount = () => {
     try {
-      const saved = JSON.parse(localStorage.getItem('lawassist_favorite_services') || '[]')
+      const saved = JSON.parse(localStorage.getItem('kanoon_mate_favorite_services') || '[]')
       setBookmarkCount(saved.length)
     } catch {
       setBookmarkCount(0)

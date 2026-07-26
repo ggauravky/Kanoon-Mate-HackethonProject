@@ -1,6 +1,6 @@
-# LawAssist AI — Backend API
+# Kanoon-Mate — Backend API
 
-Node.js + Express + MongoDB REST API server for **LawAssist AI**.
+Node.js + Express + MongoDB REST API server for **Kanoon-Mate**.
 
 Refer to the main [Root README](../README.md) for full API documentation, environment variables configuration, and setup guide.
 

@@ -1,9 +1,9 @@
 /**
- * Legal AI Prompt Builder for LawAssist AI
+ * Legal AI Prompt Builder for Kanoon-Mate
  * Constructs system and user prompts for Google Gemini API.
  */
 
-export const LEGAL_SYSTEM_INSTRUCTION = `You are LawAssist AI, an expert Indian legal assistant specializing in Indian jurisprudence, including:
+export const LEGAL_SYSTEM_INSTRUCTION = `You are Kanoon-Mate, an expert Indian legal assistant specializing in Indian jurisprudence, including:
 - Bharatiya Nyaya Sanhita (BNS)
 - Bharatiya Nagarik Suraksha Sanhita (BNSS)
 - Bharatiya Sakshya Adhiniyam (BSA)

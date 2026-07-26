@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚖️ LawAssist AI
+# ⚖️ Kanoon-Mate
 ### *Understand Every Legal Document with AI*
 
 [![React Version](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=white)](https://react.dev/)
@@ -14,7 +14,7 @@
 
 ---
 
-**LawAssist AI** is an AI-powered legal assistant designed specifically for Indian citizens. It converts complex Indian legal contracts, court notices, rent agreements, and FIR copies into plain, citizen-friendly language—highlighting statutory laws, risk levels, deadlines, and actionable steps.
+**Kanoon-Mate** is an AI-powered legal assistant designed specifically for Indian citizens. It converts complex Indian legal contracts, court notices, rent agreements, and FIR copies into plain, citizen-friendly language—highlighting statutory laws, risk levels, deadlines, and actionable steps.
 
 [🚀 Live Demo](#-quick-start) • [✨ Key Features](#-key-features) • [📐 Architecture](#-system-architecture) • [📖 API Docs](#-api-documentation) • [📜 Pitch Script](#-5-minute-hackathon-demo-script)
 
@@ -44,7 +44,7 @@
 * Critical deadlines in court notices or cheque dishonour notices are often missed, resulting in severe penalties or default judgments.
 * Professional legal advice can be expensive or inaccessible for low-income citizens and small business owners.
 
-### The Solution: LawAssist AI
+### The Solution: Kanoon-Mate
 * **Instant Plain-Language Translation:** Explains complex legal clauses in simple English and Hindi.
 * **Statutory Act Mapping:** Automatically detects and cites relevant Indian Acts (e.g. *Bharatiya Nyaya Sanhita (BNS)*, *BNSS*, *BSA*, *NI Act Section 138*, *Model Tenancy Act*).
 * **Interactive AI Assistant & Voice Interface:** Real-time speech-to-text dictation and speech-synthesis read-aloud.
@@ -259,7 +259,7 @@ npm run dev
 
 ## 🎙 Voice Assistant & AI Capabilities
 
-LawAssist AI incorporates browser-native speech synthesis and recognition:
+Kanoon-Mate incorporates browser-native speech synthesis and recognition:
 
 ```
 [ 🎤 Dictate Question ]  ──(Web Speech STT)──>  [ Text Query ]  ──>  [ Gemini AI ]

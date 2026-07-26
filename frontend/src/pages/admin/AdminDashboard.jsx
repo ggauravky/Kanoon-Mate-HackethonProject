@@ -71,7 +71,7 @@ export default function AdminDashboard() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Platform Executive Overview</h1>
           <p className="text-xs text-slate-500 mt-1">
-            Real-time SaaS monitoring for LawAssist AI (Users, AI usage, OCR errors, & Legal Services)
+            Real-time SaaS monitoring for Kanoon-Mate (Users, AI usage, OCR errors, & Legal Services)
           </p>
         </div>
 

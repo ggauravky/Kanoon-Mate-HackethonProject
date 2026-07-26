@@ -21,7 +21,7 @@ import toast from 'react-hot-toast'
 export default function ServiceCard({ service, onBookmarkToggle }) {
   const [isBookmarked, setIsBookmarked] = useState(false)
 
-  const FAVORITES_KEY = 'lawassist_favorite_services'
+  const FAVORITES_KEY = 'kanoon_mate_favorite_services'
 
   useEffect(() => {
     try {

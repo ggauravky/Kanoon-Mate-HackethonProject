@@ -31,7 +31,7 @@ export default function ServiceDetails() {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const FAVORITES_KEY = 'lawassist_favorite_services'
+  const FAVORITES_KEY = 'kanoon_mate_favorite_services'
 
   useEffect(() => {
     let isMounted = true

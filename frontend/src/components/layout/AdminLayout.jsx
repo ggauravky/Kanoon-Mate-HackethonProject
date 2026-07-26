@@ -13,7 +13,7 @@ export default function AdminLayout() {
   const isAdmin =
     user?.role === 'admin' ||
     user?.role === 'super_admin' ||
-    localStorage.getItem('lawassist_user')?.includes('usr_')
+    localStorage.getItem('kanoon_mate_user')?.includes('usr_')
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />

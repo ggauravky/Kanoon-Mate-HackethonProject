@@ -1,10 +1,35 @@
 import User from '../models/user.model.js'
+import AdvocateProfile from '../models/advocateProfile.model.js'
 import { uploadToCloudinary, deleteFromCloudinary } from './upload.service.js'
 
 /**
- * Service: Register a new user directly in MongoDB
+ * Service: Register a new user directly in MongoDB (Citizen or Advocate)
  */
-export const registerUserService = async ({ fullName, email, password, role, profilePicture }) => {
+export const registerUserService = async (userData) => {
+  const {
+    fullName,
+    email,
+    password,
+    role = 'citizen',
+    phone,
+    state,
+    city,
+    pincode,
+    preferredLanguage,
+    gender,
+    profilePicture,
+    // Advocate specific fields
+    barCouncilNumber,
+    experience,
+    practiceAreas,
+    officeAddress,
+    languages,
+    consultationFee,
+    bio,
+    onlineAvailable,
+    offlineAvailable,
+  } = userData
+
   if (!fullName || !email || !password) {
     const error = new Error('Full name, email, and password are required')
     error.statusCode = 400
@@ -19,20 +44,58 @@ export const registerUserService = async ({ fullName, email, password, role, pro
     throw error
   }
 
-  // 2. Create and save user in MongoDB
+  // 2. Create user in MongoDB
   const user = await User.create({
     fullName: fullName.trim(),
     email: email.toLowerCase().trim(),
     password,
+    phone: phone || '',
+    state: state || 'Delhi',
+    city: city || 'Delhi',
+    pincode: pincode || '',
+    preferredLanguage: preferredLanguage || 'English',
+    gender: gender || '',
     role: role || 'citizen',
     profilePicture: profilePicture || '',
     isVerified: true,
   })
 
-  // 3. Generate Auth JWT Token
+  // 3. If registering as Advocate, create linked AdvocateProfile
+  if (role === 'advocate') {
+    const parsedAreas = Array.isArray(practiceAreas)
+      ? practiceAreas
+      : typeof practiceAreas === 'string'
+      ? practiceAreas.split(',').map((s) => s.trim()).filter(Boolean)
+      : ['Civil Lawyer', 'Property Lawyer']
+
+    const parsedLangs = Array.isArray(languages)
+      ? languages
+      : typeof languages === 'string'
+      ? languages.split(',').map((s) => s.trim()).filter(Boolean)
+      : ['Hindi', 'English']
+
+    await AdvocateProfile.create({
+      user: user._id,
+      barCouncilNumber: barCouncilNumber || `BCI/${Date.now().toString().slice(-5)}`,
+      experience: Number(experience) || 5,
+      practiceAreas: parsedAreas.length > 0 ? parsedAreas : ['Civil Lawyer'],
+      officeAddress: officeAddress || `${city || 'Delhi'}, India`,
+      city: city || 'Delhi',
+      state: state || 'Delhi',
+      pincode: pincode || '',
+      languages: parsedLangs,
+      consultationFee: Number(consultationFee) || 1000,
+      bio: bio || `Verified advocate specializing in ${parsedAreas.join(', ')}.`,
+      verified: true,
+      onlineAvailable: onlineAvailable !== false,
+      offlineAvailable: offlineAvailable !== false,
+    })
+  }
+
+  // 4. Generate Auth JWT Token
   const token = user.generateAuthToken()
 
-  // 4. Exclude password from returned user object
+  // 5. Exclude password from returned user object
   const userObj = user.toObject()
   delete userObj.password
 
@@ -123,6 +186,14 @@ export const updateProfilePictureService = async (userId, file) => {
   user.profilePicture = uploadResult.url
   user.profilePicturePublicId = uploadResult.publicId
   await user.save()
+
+  // If user is advocate, also update profileImage on AdvocateProfile
+  if (user.role === 'advocate') {
+    await AdvocateProfile.findOneAndUpdate(
+      { user: user._id },
+      { profileImage: uploadResult.url }
+    )
+  }
 
   return user
 }

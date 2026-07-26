@@ -71,7 +71,7 @@ export default function TopNavbar({ onMenuToggle }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
             <Scale size={16} />
           </div>
-          <span className="text-sm font-extrabold text-slate-900">LawAssist AI</span>
+          <span className="text-sm font-extrabold text-slate-900">Kanoon-Mate</span>
         </div>
 
         {/* ── Search Bar (Desktop) ── */}

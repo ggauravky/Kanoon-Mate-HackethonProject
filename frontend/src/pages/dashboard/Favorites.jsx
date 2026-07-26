@@ -10,7 +10,7 @@ export default function Favorites() {
   const navigate = useNavigate()
   const [favorites, setFavorites] = useState([])
 
-  const FAVORITES_KEY = 'lawassist_favorite_services'
+  const FAVORITES_KEY = 'kanoon_mate_favorite_services'
 
   const loadFavorites = () => {
     try {

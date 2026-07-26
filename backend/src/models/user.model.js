@@ -28,6 +28,32 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters long'],
       select: false, // Never return password in queries by default
     },
+    phone: {
+      type: String,
+      default: '',
+    },
+    state: {
+      type: String,
+      default: 'Delhi',
+      index: true,
+    },
+    city: {
+      type: String,
+      default: 'Delhi',
+      index: true,
+    },
+    pincode: {
+      type: String,
+      default: '',
+    },
+    preferredLanguage: {
+      type: String,
+      default: 'English',
+    },
+    gender: {
+      type: String,
+      default: '',
+    },
     profilePicture: {
       type: String,
       default: '',
@@ -45,6 +71,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    favoriteAdvocates: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AdvocateProfile',
+      },
+    ],
   },
   {
     timestamps: true,
@@ -54,6 +86,7 @@ const userSchema = new mongoose.Schema(
 // ─── Indexes ────────────────────────────────────────────────────────────────
 userSchema.index({ createdAt: -1 })
 userSchema.index({ role: 1 })
+userSchema.index({ city: 1, state: 1 })
 
 // ─── Pre-Save Hook: Hash Password with bcryptjs ──────────────────────────────
 userSchema.pre('save', async function () {

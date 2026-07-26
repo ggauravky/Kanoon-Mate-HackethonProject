@@ -78,6 +78,68 @@ export const generateReport = async (req, res, next) => {
 }
 
 /**
+ * @desc    Generate and stream direct PDF report binary for instant browser download
+ * @route   GET /api/v1/reports/pdf/:documentId
+ * @access  Private
+ */
+export const streamReportPDF = async (req, res, next) => {
+  try {
+    const userId = req.user?._id || req.user?.id
+    const { documentId } = req.params
+
+    const document = await Document.findById(documentId)
+
+    if (!document) {
+      const error = new Error('Document not found')
+      error.statusCode = 404
+      throw error
+    }
+
+    if (document.uploadedBy.toString() !== userId.toString()) {
+      const error = new Error('Access denied. You do not own this document.')
+      error.statusCode = 403
+      throw error
+    }
+
+    if (!document.analysis || !document.analysis.summary) {
+      const error = new Error('Document AI analysis is not completed yet. Please analyze the document first.')
+      error.statusCode = 400
+      throw error
+    }
+
+    const pdfResult = await buildLegalReportPDF(document, req.user)
+
+    // Save report metadata in database
+    try {
+      await Report.create({
+        user: userId,
+        document: document._id,
+        reportName: pdfResult.reportName,
+        reportType: 'legal_analysis_pdf',
+        filePath: pdfResult.filePath,
+        fileUrl: pdfResult.fileUrl,
+        publicId: pdfResult.publicId,
+        fileSize: pdfResult.fileSize,
+        generatedAt: new Date(),
+      })
+    } catch (reportSaveErr) {
+      console.warn('Metadata save error:', reportSaveErr.message)
+    }
+
+    const sanitizedTitle = (document.title || 'Legal_Document').replace(/[^a-zA-Z0-9]/g, '_')
+    const filename = `Legal_Report_${sanitizedTitle}.pdf`
+
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+    res.setHeader('Content-Length', pdfResult.pdfBuffer.length)
+
+    return res.status(200).send(pdfResult.pdfBuffer)
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * @desc    Get all generated reports for current user
  * @route   GET /api/v1/reports
  * @access  Private

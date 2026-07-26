@@ -1,6 +1,7 @@
 import Document from '../models/document.model.js'
 import Reminder from '../models/reminder.model.js'
 import Notification from '../models/notification.model.js'
+import Report from '../models/report.model.js'
 import mongoose from 'mongoose'
 
 // Fallback User Model accessor in case User model is loaded dynamically
@@ -9,7 +10,7 @@ const getUserModel = () => {
 }
 
 /**
- * Service: Aggregate high-performance admin dashboard metrics & chart data
+ * Service: Aggregate high-performance admin dashboard metrics & real MongoDB chart data
  */
 export const getAdminAnalyticsService = async () => {
   const User = getUserModel()
@@ -21,52 +22,87 @@ export const getAdminAnalyticsService = async () => {
     aiAnalyses,
     failedOCR,
     totalDeadlines,
+    reportsGenerated,
     totalNotifications,
   ] = await Promise.all([
-    User.countDocuments().catch(() => 148),
-    User.countDocuments({ isVerified: true }).catch(() => 132),
-    Document.countDocuments().catch(() => 412),
-    Document.countDocuments({ uploadStatus: 'analyzed' }).catch(() => 389),
-    Document.countDocuments({ uploadStatus: 'failed' }).catch(() => 4),
-    Reminder.countDocuments().catch(() => 195),
-    Notification.countDocuments().catch(() => 860),
+    User.countDocuments(),
+    User.countDocuments({ isVerified: true }),
+    Document.countDocuments(),
+    Document.countDocuments({ uploadStatus: 'analyzed' }),
+    Document.countDocuments({ uploadStatus: 'failed' }),
+    Reminder.countDocuments(),
+    Report.countDocuments(),
+    Notification.countDocuments(),
   ])
 
-  // Mocked/Aggregated Chart Datasets for Recharts Visualization
-  const dailyUploads = [
-    { day: 'Mon', uploads: 34, aiProcessed: 32 },
-    { day: 'Tue', uploads: 45, aiProcessed: 42 },
-    { day: 'Wed', uploads: 62, aiProcessed: 58 },
-    { day: 'Thu', uploads: 51, aiProcessed: 49 },
-    { day: 'Fri', uploads: 78, aiProcessed: 75 },
-    { day: 'Sat', uploads: 90, aiProcessed: 88 },
-    { day: 'Sun', uploads: 52, aiProcessed: 45 },
-  ]
+  // Daily uploads in the last 7 days aggregated from MongoDB
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const dailyUploadsRaw = await Document.aggregate([
+    { $match: { createdAt: { $gte: sevenDaysAgo } } },
+    {
+      $group: {
+        _id: { $dayOfWeek: '$createdAt' },
+        uploads: { $sum: 1 },
+        aiProcessed: {
+          $sum: { $cond: [{ $eq: ['$uploadStatus', 'analyzed'] }, 1, 0] },
+        },
+      },
+    },
+    { $sort: { '_id': 1 } },
+  ])
 
-  const aiUsageByCategory = [
-    { category: 'Rent Agreement', count: 145 },
-    { category: 'Legal Notice', count: 98 },
-    { category: 'Employment Contract', count: 76 },
-    { category: 'Sale Deed', count: 54 },
-    { category: 'FIR / BNSS Audit', count: 39 },
-  ]
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const dailyUploadsMap = new Map()
+  dailyUploadsRaw.forEach((item) => {
+    const dayName = dayNames[(item._id - 1) % 7]
+    dailyUploadsMap.set(dayName, item)
+  })
 
-  const documentTypesDistribution = [
-    { name: 'Rent Agreements', value: 35, color: '#3B82F6' },
-    { name: 'Legal Notices', value: 25, color: '#6366F1' },
-    { name: 'Contracts', value: 20, color: '#8B5CF6' },
-    { name: 'Sale Deeds', value: 12, color: '#EC4899' },
-    { name: 'Other Claims', value: 8, color: '#64748B' },
-  ]
+  const dailyUploads = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
+    const found = dailyUploadsMap.get(day)
+    return {
+      day,
+      uploads: found ? found.uploads : 0,
+      aiProcessed: found ? found.aiProcessed : 0,
+    }
+  })
 
-  const monthlyGrowth = [
-    { month: 'Jan', users: 20, docs: 45 },
-    { month: 'Feb', users: 45, docs: 110 },
-    { month: 'Mar', users: 70, docs: 190 },
-    { month: 'Apr', users: 95, docs: 260 },
-    { month: 'May', users: 120, docs: 340 },
-    { month: 'Jun', users: 148, docs: 412 },
-  ]
+  // Category & Document Type distribution from MongoDB
+  const categoryRaw = await Document.aggregate([
+    { $group: { _id: '$analysis.documentType', count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: 5 },
+  ])
+
+  const aiUsageByCategory = categoryRaw.map((c) => ({
+    category: c._id || 'General Legal Document',
+    count: c.count,
+  }))
+
+  const colors = ['#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#64748B']
+  const documentTypesDistribution = categoryRaw.map((c, i) => ({
+    name: c._id || 'Other Documents',
+    value: c.count,
+    color: colors[i % colors.length],
+  }))
+
+  // Monthly growth aggregation from MongoDB
+  const monthlyUsers = await User.aggregate([
+    {
+      $group: {
+        _id: { month: { $month: '$createdAt' } },
+        users: { $sum: 1 },
+      },
+    },
+    { $sort: { '_id.month': 1 } },
+  ])
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const monthlyGrowth = monthlyUsers.map((m) => ({
+    month: monthNames[(m._id.month - 1) % 12],
+    users: m.users,
+    docs: totalDocuments,
+  }))
 
   return {
     overview: {
@@ -76,7 +112,7 @@ export const getAdminAnalyticsService = async () => {
       aiAnalyses,
       failedOCR,
       totalDeadlines,
-      reportsGenerated: Math.round(totalDocuments * 0.85),
+      reportsGenerated,
       totalNotifications,
     },
     charts: {
@@ -97,7 +133,7 @@ export const getAllUsersService = async (query = {}) => {
 
   if (query.search) {
     filter.$or = [
-      { name: { $regex: query.search, $options: 'i' } },
+      { fullName: { $regex: query.search, $options: 'i' } },
       { email: { $regex: query.search, $options: 'i' } },
     ]
   }
@@ -108,7 +144,6 @@ export const getAllUsersService = async (query = {}) => {
   const users = await User.find(filter)
     .select('-password')
     .sort({ createdAt: -1 })
-    .catch(() => [])
 
   return users
 }

@@ -28,6 +28,14 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Report file path is required'],
     },
+    fileUrl: {
+      type: String,
+      default: '',
+    },
+    publicId: {
+      type: String,
+      default: '',
+    },
     fileSize: {
       type: Number,
       default: 0,
@@ -41,6 +49,9 @@ const reportSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// ─── Indexes ────────────────────────────────────────────────────────────────
+reportSchema.index({ user: 1, createdAt: -1 });
 
 const Report = mongoose.model('Report', reportSchema);
 

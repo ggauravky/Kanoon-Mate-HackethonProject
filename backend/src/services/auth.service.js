@@ -1,4 +1,5 @@
 import User from '../models/user.model.js'
+import { uploadToCloudinary, deleteFromCloudinary } from './upload.service.js'
 
 /**
  * Service: Register a new user directly in MongoDB
@@ -86,6 +87,42 @@ export const getMeService = async (userId) => {
     error.statusCode = 404
     throw error
   }
+
+  return user
+}
+
+/**
+ * Service: Upload or update user profile picture via Cloudinary
+ */
+export const updateProfilePictureService = async (userId, file) => {
+  if (!file) {
+    const error = new Error('No profile picture file provided')
+    error.statusCode = 400
+    throw error
+  }
+
+  const user = await User.findById(userId)
+  if (!user) {
+    const error = new Error('User account not found')
+    error.statusCode = 404
+    throw error
+  }
+
+  // If previous picture exists in Cloudinary, delete it
+  if (user.profilePicturePublicId) {
+    await deleteFromCloudinary(user.profilePicturePublicId, 'image')
+  }
+
+  // Upload new image buffer to Cloudinary
+  const uploadResult = await uploadToCloudinary(file.buffer, {
+    folder: 'kanoon_mate/profiles',
+    fileName: `user-${userId}-${Date.now()}`,
+    resource_type: 'image',
+  })
+
+  user.profilePicture = uploadResult.url
+  user.profilePicturePublicId = uploadResult.publicId
+  await user.save()
 
   return user
 }

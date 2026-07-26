@@ -48,15 +48,14 @@ const documentSchema = new mongoose.Schema(
     storedFileName: {
       type: String,
       required: [true, 'Stored file name is required'],
-      unique: true,
       trim: true,
     },
     mimeType: {
       type: String,
       required: [true, 'MIME type is required'],
       enum: {
-        values: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'],
-        message: 'Invalid file format. Only PDF, JPG, JPEG, and PNG files are allowed.',
+        values: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+        message: 'Invalid file format. Only PDF, JPG, JPEG, PNG, and WEBP files are allowed.',
       },
     },
     fileSize: {
@@ -67,6 +66,14 @@ const documentSchema = new mongoose.Schema(
     filePath: {
       type: String,
       required: [true, 'File path is required'],
+    },
+    fileUrl: {
+      type: String,
+      default: '',
+    },
+    publicId: {
+      type: String,
+      default: '',
     },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -114,6 +121,11 @@ const documentSchema = new mongoose.Schema(
     timestamps: true,
   }
 )
+
+// ─── Indexes ────────────────────────────────────────────────────────────────
+documentSchema.index({ uploadedBy: 1, createdAt: -1 })
+documentSchema.index({ uploadStatus: 1 })
+documentSchema.index({ analysisStatus: 1 })
 
 const Document = mongoose.model('Document', documentSchema)
 

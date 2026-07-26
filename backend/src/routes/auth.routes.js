@@ -4,6 +4,7 @@ import {
   login,
   logout,
   getMe,
+  updateProfilePicture,
 } from '../controllers/auth.controller.js'
 import {
   registerValidation,
@@ -11,6 +12,7 @@ import {
   validateRequest,
 } from '../validators/auth.validator.js'
 import { protect } from '../middleware/auth.middleware.js'
+import { uploadSingleDocument } from '../middleware/upload.middleware.js'
 
 const router = Router()
 
@@ -19,7 +21,8 @@ router.post('/register', registerValidation, validateRequest, register)
 router.post('/login', loginValidation, validateRequest, login)
 router.post('/logout', logout)
 
-// Protected Profile Endpoint
+// Protected Profile Endpoints
 router.get('/me', protect, getMe)
+router.put('/profile-picture', protect, uploadSingleDocument('profilePicture'), updateProfilePicture)
 
 export default router

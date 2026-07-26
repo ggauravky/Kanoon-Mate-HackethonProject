@@ -56,7 +56,7 @@ export default function NotificationBell() {
       toast.error(err.message || 'Failed to mark notification as read.')
     }
   }
-
+  // Mark all notifications as read
   const handleMarkAllRead = async () => {
     try {
       await notificationsAPI.markAllAsRead()
@@ -67,6 +67,24 @@ export default function NotificationBell() {
       toast.error(err.message || 'Failed to mark all as read.')
     }
   }
+
+  // Delete a notification
+  const handleDelete = async (id, e) => {
+    e.stopPropagation()
+    try {
+      await notificationsAPI.deleteNotification(id)
+      setNotifications((prev) => {
+        const updated = prev.filter((n) => n._id !== id)
+        setUnreadCount(updated.filter((n) => !n.isRead).length)
+        return updated
+      })
+      toast.success('Notification deleted.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete notification.')
+    }
+  }
+
+
 
   const getTypeIcon = (type) => {
     switch (type) {

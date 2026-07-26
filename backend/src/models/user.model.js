@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    profilePicturePublicId: {
+      type: String,
+      default: '',
+    },
     role: {
       type: String,
       enum: ['citizen', 'law_student', 'advocate', 'admin', 'super_admin'],
@@ -47,8 +51,11 @@ const userSchema = new mongoose.Schema(
   }
 )
 
+// ─── Indexes ────────────────────────────────────────────────────────────────
+userSchema.index({ createdAt: -1 })
+userSchema.index({ role: 1 })
+
 // ─── Pre-Save Hook: Hash Password with bcryptjs ──────────────────────────────
-// NOTE: For async Mongoose middleware, return promises instead of accepting/calling `next`
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
     return

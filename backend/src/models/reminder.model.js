@@ -55,6 +55,9 @@ const reminderSchema = new mongoose.Schema(
   }
 )
 
+// ─── Indexes ────────────────────────────────────────────────────────────────
+reminderSchema.index({ userId: 1, status: 1, dueDate: 1 })
+
 // ─── Virtual: Days Remaining Calculation ───────────────────────────────────────
 reminderSchema.virtual('daysRemaining').get(function () {
   if (!this.dueDate) return 0

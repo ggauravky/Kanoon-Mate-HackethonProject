@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import SectionCard from '../../components/common/SectionCard'
+import VoicePlayer from '../../components/voice/VoicePlayer'
 import { documentsAPI, reportsAPI } from '../../services/api'
 import { mockDocuments } from '../../data/mockData'
 
@@ -310,7 +311,7 @@ export default function DocumentAnalysis() {
         </div>
       </div>
 
-      {/* ── Summary Card ───────────────────────────────────────────────────────── */}
+      {/* ── Summary Card with Voice Read Aloud ───────────────────────────────────── */}
       <SectionCard>
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
@@ -319,21 +320,31 @@ export default function DocumentAnalysis() {
               Executive Summary
             </h2>
           </div>
-          <button
-            onClick={handleCopySummary}
-            className="btn-ghost p-1.5 text-xs gap-1 text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
-            title="Copy summary"
-          >
-            <Copy size={14} /> Copy
-          </button>
+          <div className="flex items-center gap-2">
+            <VoicePlayer text={analysis.summary} lang="en-IN" />
+            <button
+              onClick={handleCopySummary}
+              className="btn-ghost p-1.5 text-xs gap-1 text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+              title="Copy summary"
+            >
+              <Copy size={14} /> Copy
+            </button>
+          </div>
         </div>
         <p className="text-sm text-[var(--color-text)] leading-relaxed bg-[var(--color-primary-50)] p-4 rounded-xl border border-[var(--color-primary-100)] font-medium">
           {analysis.summary}
         </p>
       </SectionCard>
 
-      {/* ── Simple Explanation ─────────────────────────────────────────────────── */}
-      <SectionCard title="Simple Plain-Language Explanation">
+      {/* ── Simple Explanation with Voice Read Aloud ────────────────────────────── */}
+      <SectionCard>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h2 className="text-sm font-semibold text-[var(--color-text)] uppercase tracking-wider">
+            Simple Plain-Language Explanation
+          </h2>
+          <VoicePlayer text={analysis.simpleExplanation} lang="en-IN" />
+        </div>
+
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-accent-50)] text-[var(--color-accent-dark)] mt-0.5">
             <BookOpen size={18} />

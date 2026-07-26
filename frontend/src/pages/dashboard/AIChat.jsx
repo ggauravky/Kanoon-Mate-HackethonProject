@@ -1,9 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, Send, Sparkles, Scale, BookOpen, Copy, Check, ShieldCheck } from 'lucide-react'
+import { Bot, Send, Sparkles, Scale, BookOpen, Copy, Check, ShieldCheck, Settings2 } from 'lucide-react'
 import PageHeader from '../../components/common/PageHeader'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
+import VoiceButton from '../../components/voice/VoiceButton'
+import VoicePlayer from '../../components/voice/VoicePlayer'
+import VoiceRecorder from '../../components/voice/VoiceRecorder'
+import VoiceSettings, { getStoredVoiceSettings } from '../../components/voice/VoiceSettings'
+import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis'
 
 const KNOWLEDGE_RESPONSES = {
   tenant: {
@@ -49,9 +54,18 @@ export default function AIChat() {
   const [messages, setMessages] = useState(INITIAL_MSGS)
   const [input, setInput] = useState('')
   const [copiedId, setCopiedId] = useState(null)
+  const [showRecorder, setShowRecorder] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [voicePrefs, setVoicePrefs] = useState(getStoredVoiceSettings)
+
   const bottomRef = useRef(null)
+  const { speak } = useSpeechSynthesis()
 
   const initials = user?.name?.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase() ?? 'U'
+
+  useEffect(() => {
+    setVoicePrefs(getStoredVoiceSettings())
+  }, [showSettings])
 
   const getSmartResponse = (queryText) => {
     const q = queryText.toLowerCase()
@@ -90,7 +104,20 @@ export default function AIChat() {
 
     setMessages((prev) => [...prev, userMsg, aiMsg])
     setInput('')
+    setShowRecorder(false)
+
+    // Auto-play speech if enabled in voice settings
+    if (voicePrefs.autoPlay) {
+      setTimeout(() => {
+        speak(smart.text, { lang: voicePrefs.lang, rate: voicePrefs.rate })
+      }, 300)
+    }
+
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+  }
+
+  const handleVoiceSend = (transcriptText) => {
+    handleSend(transcriptText)
   }
 
   const handleCopy = (id, content) => {
@@ -102,13 +129,22 @@ export default function AIChat() {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-140px)]">
-      <PageHeader
-        title="AI Legal Query Assistant"
-        subtitle="Get instant explanations on Indian Acts, BNSS/IPC sections, and citizen rights."
-      />
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <PageHeader
+          title="AI Legal Query Assistant"
+          subtitle="Get instant explanations on Indian Acts, BNSS/IPC sections, and citizen rights."
+        />
+        <button
+          onClick={() => setShowSettings(true)}
+          className="btn-ghost text-xs gap-1.5 border border-[var(--color-border)] rounded-xl mt-1 shrink-0"
+          title="Voice Preferences"
+        >
+          <Settings2 size={15} /> Voice Settings
+        </button>
+      </div>
 
       {/* Main Chat Box */}
-      <div className="flex-1 overflow-y-auto card p-4 sm:p-6 space-y-4 mb-4 border border-slate-200 shadow-sm rounded-2xl bg-white">
+      <div className="flex-1 overflow-y-auto card p-4 sm:p-6 space-y-4 mb-4 border border-[var(--color-border)] shadow-xs rounded-2xl bg-[var(--color-surface)]">
         <AnimatePresence initial={false}>
           {messages.map((msg) => {
             const isAI = msg.role === 'assistant'
@@ -122,9 +158,9 @@ export default function AIChat() {
               >
                 {/* Avatar */}
                 <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold shadow-sm ${
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold shadow-xs ${
                     isAI
-                      ? 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white'
+                      ? 'bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white'
                       : 'bg-slate-800 text-white'
                   }`}
                 >
@@ -135,18 +171,18 @@ export default function AIChat() {
                 <div
                   className={`max-w-[85%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
                     isAI
-                      ? 'bg-slate-50 border border-slate-200/80 text-slate-800 shadow-sm'
-                      : 'bg-indigo-600 text-white font-medium'
+                      ? 'bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] text-[var(--color-text)] shadow-xs'
+                      : 'bg-[var(--color-primary)] text-white font-medium'
                   }`}
                 >
                   {msg.title && (
-                    <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-200">
-                      <span className="font-bold text-indigo-900 text-xs flex items-center gap-1.5">
-                        <Scale size={14} className="text-indigo-600" /> {msg.title}
+                    <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-[var(--color-border-light)]">
+                      <span className="font-bold text-[var(--color-primary-dark)] text-xs flex items-center gap-1.5">
+                        <Scale size={14} className="text-[var(--color-primary)]" /> {msg.title}
                       </span>
                       <button
                         onClick={() => handleCopy(msg.id, msg.text)}
-                        className="text-slate-400 hover:text-slate-600 p-1 rounded transition-colors"
+                        className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] p-1 rounded transition-colors"
                         title="Copy Response"
                       >
                         {copiedId === msg.id ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
@@ -156,14 +192,25 @@ export default function AIChat() {
 
                   <p className="whitespace-pre-line">{msg.text}</p>
 
-                  {msg.citation && (
-                    <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
-                      <span className="flex items-center gap-1 font-semibold text-indigo-600">
-                        <BookOpen size={13} /> {msg.citation}
-                      </span>
-                      <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                        <ShieldCheck size={12} /> Verified Legal Context
-                      </span>
+                  {/* Read Aloud Voice Player for AI responses */}
+                  {isAI && (
+                    <div className="mt-3 pt-2.5 border-t border-[var(--color-border-light)] flex items-center justify-between gap-2 flex-wrap">
+                      <VoicePlayer
+                        text={msg.text}
+                        lang={voicePrefs.lang}
+                        rate={voicePrefs.rate}
+                      />
+                      {msg.citation && (
+                        <span className="flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary)]">
+                          <BookOpen size={12} /> {msg.citation}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {!isAI && (
+                    <div className="mt-2 text-right">
+                      <span className="text-[10px] text-white/70">Sent</span>
                     </div>
                   )}
                 </div>
@@ -174,38 +221,68 @@ export default function AIChat() {
         <div ref={bottomRef} />
       </div>
 
+      {/* Voice Recorder Overlay Widget */}
+      <AnimatePresence>
+        {showRecorder && (
+          <div className="mb-3">
+            <VoiceRecorder
+              defaultLang={voicePrefs.lang}
+              onSend={handleVoiceSend}
+              onClose={() => setShowRecorder(false)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Sample Suggestion Chips */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        {PROMPT_CHIPS.map((chip) => (
-          <button
-            key={chip.key}
-            onClick={() => handleSend(chip.label)}
-            className="flex items-center gap-1.5 rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors shadow-xs"
-          >
-            <Sparkles size={12} className="text-indigo-500" />
-            {chip.label}
-          </button>
-        ))}
-      </div>
+      {!showRecorder && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {PROMPT_CHIPS.map((chip) => (
+            <button
+              key={chip.key}
+              onClick={() => handleSend(chip.label)}
+              className="flex items-center gap-1.5 rounded-xl border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] px-3 py-1.5 text-xs font-semibold text-[var(--color-primary-dark)] hover:bg-[var(--color-primary-100)] transition-colors shadow-xs"
+            >
+              <Sparkles size={12} className="text-[var(--color-primary)]" />
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Input Row */}
       <div className="flex items-center gap-2">
+        {/* Voice Recording Button */}
+        <VoiceButton
+          isListening={showRecorder}
+          onClick={() => setShowRecorder((prev) => !prev)}
+        />
+
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask Kanoon-Mate about Indian legal rights, contracts, or BNSS sections…"
-          className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-xs"
+          placeholder="Ask LawAssist AI or click mic to speak..."
+          className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all shadow-xs"
         />
+
         <button
           onClick={() => handleSend()}
           disabled={!input.trim()}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all disabled:opacity-40"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white shadow-xs transition-all disabled:opacity-40"
+          title="Send message"
         >
           <Send size={16} />
         </button>
       </div>
+
+      {/* Voice Settings Modal */}
+      <VoiceSettings
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        onSave={(updated) => setVoicePrefs(updated)}
+      />
     </div>
   )
 }

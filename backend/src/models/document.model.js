@@ -1,5 +1,37 @@
 import mongoose from 'mongoose'
 
+const analysisSchema = new mongoose.Schema(
+  {
+    documentType: { type: String, default: '' },
+    language: { type: String, default: '' },
+    summary: { type: String, default: '' },
+    simpleExplanation: { type: String, default: '' },
+    keyPoints: [{ type: String }],
+    importantDates: [
+      {
+        date: { type: String, default: '' },
+        description: { type: String, default: '' },
+      },
+    ],
+    detectedLaws: [
+      {
+        act: { type: String, default: '' },
+        section: { type: String, default: '' },
+        reason: { type: String, default: '' },
+      },
+    ],
+    requiredActions: [{ type: String }],
+    riskLevel: {
+      type: String,
+      enum: ['Low', 'Medium', 'High', ''],
+      default: '',
+    },
+    questionsYouMayAsk: [{ type: String }],
+    disclaimer: { type: String, default: '' },
+  },
+  { _id: false }
+)
+
 const documentSchema = new mongoose.Schema(
   {
     title: {
@@ -57,6 +89,19 @@ const documentSchema = new mongoose.Schema(
       default: '',
     },
     ocrCompletedAt: {
+      type: Date,
+      default: null,
+    },
+    analysisStatus: {
+      type: String,
+      enum: ['Uploaded', 'OCR Complete', 'AI Processing', 'AI Completed', 'Failed'],
+      default: 'Uploaded',
+    },
+    analysis: {
+      type: analysisSchema,
+      default: () => ({}),
+    },
+    analysisCompletedAt: {
       type: Date,
       default: null,
     },

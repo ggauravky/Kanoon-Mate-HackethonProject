@@ -7,6 +7,7 @@ import DashboardHome from '../pages/dashboard/DashboardHome'
 import Documents from '../pages/dashboard/Documents'
 import Upload from '../pages/dashboard/Upload'
 import DocumentDetailsPage from '../pages/dashboard/DocumentDetailsPage'
+import DocumentAnalysis from '../pages/dashboard/DocumentAnalysis'
 import History from '../pages/dashboard/History'
 import Deadlines from '../pages/dashboard/Deadlines'
 import AIChat from '../pages/dashboard/AIChat'
@@ -28,6 +29,7 @@ function AppRoutes() {
             <Route index element={<DashboardHome />} />
             <Route path="documents" element={<Documents />} />
             <Route path="upload" element={<Upload />} />
+            <Route path="analysis/:id" element={<DocumentAnalysis />} />
             <Route path="chat" element={<AIChat />} />
             <Route path="deadlines" element={<Deadlines />} />
             <Route path="history" element={<History />} />

@@ -54,6 +54,8 @@ export const documentsAPI = {
   getDocumentById: (id) => API.get(`/documents/${id}`),
   deleteDocument: (id) => API.delete(`/documents/${id}`),
   extractText: (id) => API.post(`/documents/${id}/extract-text`),
+  analyzeDocument: (id) => API.post(`/documents/${id}/analyze`),
+  getAnalysis: (id) => API.get(`/documents/${id}/analysis`),
 }
 
 export default API

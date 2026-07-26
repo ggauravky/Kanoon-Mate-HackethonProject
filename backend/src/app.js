@@ -9,6 +9,8 @@ import analysisRoutes from './routes/analysis.routes.js'
 import reminderRoutes from './routes/reminder.routes.js'
 import reportRoutes from './routes/report.routes.js'
 import legalServiceRoutes from './routes/legalService.routes.js'
+import notificationRoutes from './routes/notification.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 
 const app = express()
 
@@ -37,13 +39,15 @@ app.get('/api/v1/health', (req, res) => {
   })
 })
 
-// Document & Legal Service System Routes
+// System Routes
 app.use('/api/v1/documents', documentRoutes)
 app.use('/api/v1/documents', ocrRoutes)
 app.use('/api/v1/documents', analysisRoutes)
 app.use('/api/v1/reminders', reminderRoutes)
 app.use('/api/v1/reports', reportRoutes)
 app.use('/api/v1/legal-services', legalServiceRoutes)
+app.use('/api/v1/notifications', notificationRoutes)
+app.use('/api/v1/admin', adminRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {

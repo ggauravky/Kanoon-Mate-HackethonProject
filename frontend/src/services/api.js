@@ -75,17 +75,34 @@ export const remindersAPI = {
   deleteReminder: (id) => API.delete(`/reminders/${id}`),
 }
 
+// ─── AI Legal Reports API Endpoints ───────────────────────────────────────────
 export const reportsAPI = {
-  generateReport: (documentId) => API.post(`/reports/${documentId}/generate`),
-  getReports: (params) => API.get('/reports', { params }),
-  getReportById: (id) => API.get(`/reports/${id}`),
-  deleteReport: (id) => API.delete(`/reports/${id}`),
+  generatePDFReport: (documentId) => API.get(`/reports/pdf/${documentId}`, { responseType: 'blob' }),
+  exportSummaryJSON: (documentId) => API.get(`/reports/json/${documentId}`),
 }
 
+// ─── Legal Help Services Hub Endpoints ───────────────────────────────────────
 export const legalServicesAPI = {
-  getServices: (params) => API.get('/legal-services', { params }),
-  searchServices: (params) => API.get('/legal-services/search', { params }),
-  getServiceById: (id) => API.get(`/legal-services/${id}`),
+  searchAdvocates: (params) => API.get('/legal-services/advocates', { params }),
+  getLegalAidCenters: (params) => API.get('/legal-services/aid-centers', { params }),
+  getEdaakhilGuides: () => API.get('/legal-services/edaakhil-guides'),
+}
+
+// ─── Smart Notification API Endpoints ─────────────────────────────────────────
+export const notificationsAPI = {
+  getNotifications: (params) => API.get('/notifications', { params }),
+  markAsRead: (id) => API.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => API.patch('/notifications/read-all'),
+  deleteNotification: (id) => API.delete(`/notifications/${id}`),
+}
+
+// ─── Admin Dashboard API Endpoints ────────────────────────────────────────────
+export const adminAPI = {
+  getAnalytics: () => API.get('/admin/analytics'),
+  getUsers: (params) => API.get('/admin/users', { params }),
+  updateUser: (id, updateData) => API.patch(`/admin/users/${id}`, updateData),
+  deleteUser: (id) => API.delete(`/admin/users/${id}`),
+  broadcastNotification: (data) => API.post('/admin/notifications/broadcast', data),
 }
 
 export default API

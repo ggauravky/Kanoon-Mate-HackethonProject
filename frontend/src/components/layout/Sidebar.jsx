@@ -17,25 +17,27 @@ import {
   X,
   FileCheck2,
   HeartHandshake,
+  Bell,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 
 // ─── Nav Items ─────────────────────────────────────────────────────────────────
 const navItems = [
-  { id: 'dashboard',  label: 'Dashboard',      icon: LayoutDashboard, to: '/dashboard',           end: true  },
-  { id: 'documents',  label: 'My Documents',   icon: FileText,        to: '/dashboard/documents'              },
-  { id: 'upload',     label: 'Upload Document',icon: Upload,           to: '/dashboard/upload'                },
-  { id: 'legal-help', label: 'Legal Help Hub', icon: HeartHandshake,   to: '/dashboard/legal-help'            },
-  { id: 'reports',    label: 'Legal Reports',  icon: FileCheck2,      to: '/dashboard/reports'               },
-  { id: 'chat',       label: 'AI Assistant',   icon: Bot,             to: '/dashboard/chat'                  },
-  { id: 'deadlines',  label: 'Deadlines',      icon: CalendarClock,   to: '/dashboard/deadlines'             },
-  { id: 'history',    label: 'History',         icon: History,         to: '/dashboard/history'               },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard', end: true },
+  { id: 'documents', label: 'My Documents', icon: FileText, to: '/dashboard/documents' },
+  { id: 'upload', label: 'Upload Document', icon: Upload, to: '/dashboard/upload' },
+  { id: 'legal-help', label: 'Legal Help Hub', icon: HeartHandshake, to: '/dashboard/legal-help' },
+  { id: 'reports', label: 'Legal Reports', icon: FileCheck2, to: '/dashboard/reports' },
+  { id: 'chat', label: 'AI Assistant', icon: Bot, to: '/dashboard/chat' },
+  { id: 'deadlines', label: 'Deadlines', icon: CalendarClock, to: '/dashboard/deadlines' },
+  { id: 'notifications', label: 'Notifications', icon: Bell, to: '/dashboard/notifications' },
+  { id: 'history', label: 'History', icon: History, to: '/dashboard/history' },
 ]
 
 const bottomItems = [
   { id: 'settings', label: 'Settings', icon: Settings, to: '/dashboard/settings' },
-  { id: 'profile',  label: 'Profile',  icon: UserCircle, to: '/dashboard/profile' },
+  { id: 'profile', label: 'Profile', icon: UserCircle, to: '/dashboard/profile' },
 ]
 
 // ─── Sidebar Link ──────────────────────────────────────────────────────────────
@@ -121,7 +123,7 @@ function SidebarContent({ collapsed, onClose }) {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <span className="text-white font-bold text-base whitespace-nowrap">Kanoon-Mate</span>
+              <span className="text-white font-bold text-base whitespace-nowrap">LawAssist AI</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -201,24 +203,21 @@ function SidebarContent({ collapsed, onClose }) {
 
 // ─── Main Sidebar Export ───────────────────────────────────────────────────────
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
-  // Close drawer on route change (mobile)
   useEffect(() => {
     if (mobileOpen) onMobileClose?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <>
-      {/* ── Desktop Sidebar ───────────────────────────────────────────── */}
+      {/* Desktop Sidebar */}
       <motion.aside
         animate={{ width: collapsed ? 68 : 240 }}
         transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className={`hidden lg:flex flex-col relative shrink-0 overflow-hidden`}
+        className="hidden lg:flex flex-col relative shrink-0 overflow-hidden"
         style={{ boxShadow: 'var(--shadow-sidebar)' }}
       >
         <SidebarContent collapsed={collapsed} />
 
-        {/* Collapse Toggle */}
         <button
           onClick={onToggle}
           className="absolute -right-3 top-[72px] z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-[var(--color-border)] shadow-md text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all duration-150"
@@ -228,11 +227,10 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         </button>
       </motion.aside>
 
-      {/* ── Mobile Drawer Overlay ─────────────────────────────────────── */}
+      {/* Mobile Drawer Overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -243,7 +241,6 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
               onClick={onMobileClose}
             />
 
-            {/* Drawer */}
             <motion.aside
               key="drawer"
               initial={{ x: -260 }}

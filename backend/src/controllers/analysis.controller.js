@@ -1,5 +1,6 @@
 import Document from '../models/document.model.js';
 import { generateLegalAnalysisService } from '../services/ai.service.js';
+import { createNotificationService } from '../services/notification.service.js';
 
 /**
  * @desc    Analyze extracted document OCR text using Google Gemini AI
@@ -67,6 +68,20 @@ export const analyzeDocument = async (req, res, next) => {
     document.uploadStatus = 'analyzed';
     document.analysisCompletedAt = new Date();
     await document.save();
+
+    // Auto-generate notification in MongoDB
+    try {
+      await createNotificationService({
+        userId,
+        title: `AI Legal Analysis Ready: ${document.title}`,
+        message: `Structured breakdown, risk score (${analysisResult.riskLevel || 'Low'}), and key takeaways ready.`,
+        type: 'AI Analysis Ready',
+        priority: 'High',
+        relatedDocument: document._id,
+      });
+    } catch (notifErr) {
+      console.warn('Failed to auto-create analysis notification:', notifErr.message);
+    }
 
     return res.status(200).json({
       success: true,

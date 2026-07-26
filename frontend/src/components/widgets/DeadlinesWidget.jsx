@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import { CalendarClock, AlertCircle, CheckCircle2, ChevronRight, Clock } from 'lucide-react'
+import { CalendarClock, Clock, ChevronRight, AlertCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { remindersAPI } from '../../services/api'
 import { calculateDeadlineMetrics } from '../../utils/dateExtractor'
-import { mockDeadlines } from '../../data/mockData'
 
 export default function DeadlinesWidget({ limit = 3 }) {
   const navigate = useNavigate()
@@ -17,11 +16,11 @@ export default function DeadlinesWidget({ limit = 3 }) {
       .then((res) => {
         const fetched = res.data?.data?.reminders || []
         if (isMounted) {
-          setReminders(fetched.length > 0 ? fetched : mockDeadlines)
+          setReminders(fetched)
         }
       })
       .catch(() => {
-        if (isMounted) setReminders(mockDeadlines)
+        if (isMounted) setReminders([])
       })
       .finally(() => {
         if (isMounted) setLoading(false)
@@ -65,6 +64,16 @@ export default function DeadlinesWidget({ limit = 3 }) {
     return (
       <div className="flex h-24 items-center justify-center">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (displayList.length === 0) {
+    return (
+      <div className="p-6 text-center space-y-2">
+        <CalendarClock size={28} className="mx-auto text-slate-300" />
+        <p className="text-xs font-semibold text-slate-700">No active deadlines</p>
+        <p className="text-[11px] text-slate-500">Add key dates from legal documents to track reminders here.</p>
       </div>
     )
   }

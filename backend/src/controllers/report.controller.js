@@ -3,6 +3,7 @@ import path from 'path';
 import Report from '../models/report.model.js';
 import Document from '../models/document.model.js';
 import { buildLegalReportPDF } from '../services/report.service.js';
+import { createNotificationService } from '../services/notification.service.js';
 
 /**
  * @desc    Generate a downloadable PDF Legal Report for a document
@@ -48,6 +49,20 @@ export const generateReport = async (req, res, next) => {
       fileSize: pdfResult.fileSize,
       generatedAt: new Date(),
     });
+
+    // Auto-generate notification in MongoDB
+    try {
+      await createNotificationService({
+        userId,
+        title: 'Executive Legal Report Generated',
+        message: `Downloadable PDF audit report ready for "${document.title}".`,
+        type: 'Report Generated',
+        priority: 'Medium',
+        relatedDocument: document._id,
+      });
+    } catch (notifErr) {
+      console.warn('Failed to auto-create report notification:', notifErr.message);
+    }
 
     return res.status(201).json({
       success: true,

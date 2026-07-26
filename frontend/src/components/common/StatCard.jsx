@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
 import {
-  FileText, Bot, CalendarClock, BookMarked,
-  TrendingUp, TrendingDown, Minus,
+  FileText, Bot, CalendarClock, BookMarked, Sparkles, FileCheck2,
 } from 'lucide-react'
 
 const iconMap = {
@@ -9,82 +8,59 @@ const iconMap = {
   Bot,
   CalendarClock,
   BookMarked,
+  Sparkles,
+  FileCheck2,
 }
 
 const colorMap = {
-  primary: {
-    icon: 'text-[var(--color-primary)]',
-    bg: 'bg-[var(--color-primary-50)]',
-    ring: 'ring-[var(--color-primary-100)]',
+  blue: {
+    icon: 'text-blue-600',
+    bg: 'bg-blue-50 border-blue-100',
+    badge: 'bg-blue-100 text-blue-800',
   },
-  accent: {
-    icon: 'text-[var(--color-accent)]',
-    bg: 'bg-[var(--color-accent-50)]',
-    ring: 'ring-[var(--color-accent-100)]',
+  green: {
+    icon: 'text-emerald-600',
+    bg: 'bg-emerald-50 border-emerald-100',
+    badge: 'bg-emerald-100 text-emerald-800',
   },
-  warning: {
-    icon: 'text-[var(--color-warning)]',
-    bg: 'bg-[var(--color-warning-50)]',
-    ring: 'ring-[var(--color-warning-100)]',
+  yellow: {
+    icon: 'text-amber-600',
+    bg: 'bg-amber-50 border-amber-100',
+    badge: 'bg-amber-100 text-amber-800',
   },
   purple: {
-    icon: 'text-[var(--color-purple)]',
-    bg: 'bg-[var(--color-purple-50)]',
-    ring: 'ring-[var(--color-purple-100)]',
+    icon: 'text-purple-600',
+    bg: 'bg-purple-50 border-purple-100',
+    badge: 'bg-purple-100 text-purple-800',
   },
 }
 
-function TrendBadge({ trend }) {
-  if (trend === 0)
-    return (
-      <span className="flex items-center gap-1 text-xs text-[var(--color-text-muted)]">
-        <Minus size={12} /> No change
-      </span>
-    )
-  const positive = trend > 0
-  return (
-    <span
-      className={`flex items-center gap-1 text-xs font-medium ${
-        positive ? 'text-[var(--color-accent)]' : 'text-[var(--color-danger)]'
-      }`}
-    >
-      {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-      {positive ? '+' : ''}{trend} this month
-    </span>
-  )
-}
-
-/**
- * StatCard — reusable metric card
- * @param {string} label
- * @param {number} value
- * @param {number} trend
- * @param {string} icon   — key from iconMap
- * @param {string} color  — key from colorMap
- * @param {number} index  — for staggered animation
- */
-export default function StatCard({ label, value, trend, icon, color = 'primary', index = 0 }) {
-  const Icon = iconMap[icon] ?? FileText
-  const c = colorMap[color] ?? colorMap.primary
+export default function StatCard({ label, value, change, icon, color = 'blue', index = 0 }) {
+  const IconComponent = typeof icon === 'string' ? iconMap[icon] ?? FileText : icon ?? FileText
+  const theme = colorMap[color] ?? colorMap.blue
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.08 }}
-      whileHover={{ y: -2, boxShadow: '0 8px 24px rgb(0 0 0 / 0.08)' }}
-      className="card p-5 flex items-start gap-4 cursor-default select-none"
+      transition={{ duration: 0.35, delay: index * 0.06 }}
+      whileHover={{ y: -3, boxShadow: '0 12px 24px -6px rgba(0, 0, 0, 0.08)' }}
+      className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-xs transition-all duration-200 cursor-default"
     >
-      {/* Icon */}
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-4 ${c.bg} ${c.ring}`}>
-        <Icon size={20} className={c.icon} />
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${theme.bg} transition-transform duration-200 group-hover:scale-110`}>
+          <IconComponent size={20} className={theme.icon} />
+        </div>
+        {change && (
+          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${theme.badge}`}>
+            {change}
+          </span>
+        )}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col gap-1">
-        <p className="text-sm text-[var(--color-text-secondary)] font-medium">{label}</p>
-        <p className="text-2xl font-bold text-[var(--color-text)]">{value}</p>
-        <TrendBadge trend={trend} />
+      <div>
+        <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{value}</p>
+        <p className="text-xs font-semibold text-slate-500 mt-0.5">{label}</p>
       </div>
     </motion.div>
   )

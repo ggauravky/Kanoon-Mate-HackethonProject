@@ -1,4 +1,5 @@
 import Reminder from '../models/reminder.model.js'
+import { createNotificationService } from './notification.service.js'
 
 /**
  * Service: Create a new deadline reminder
@@ -21,6 +22,22 @@ export const createReminderService = async (data, userId) => {
     userId,
     extractedFromAI: data.extractedFromAI || false,
   })
+
+  // Auto-generate notification in MongoDB
+  try {
+    const dueDateFormatted = new Date(data.dueDate).toLocaleDateString('en-IN')
+    await createNotificationService({
+      userId,
+      title: `⚠️ Deadline Reminder: ${data.title}`,
+      message: `Statutory filing / reply due on ${dueDateFormatted}.`,
+      type: 'Deadline Reminder',
+      priority: data.priority === 'high' ? 'Critical' : 'High',
+      relatedDeadline: newReminder._id,
+      relatedDocument: data.documentId || null,
+    })
+  } catch (notifErr) {
+    console.warn('Failed to auto-create reminder notification:', notifErr.message)
+  }
 
   return newReminder
 }

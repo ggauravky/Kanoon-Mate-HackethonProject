@@ -28,7 +28,7 @@ API.interceptors.response.use(
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||
-      'Something went wrong. Please try again.'
+      'Something went wrong. Please check your network connection.'
     return Promise.reject(new Error(message))
   }
 )
@@ -52,6 +52,9 @@ export const documentsAPI = {
     }),
   getDocuments: () => API.get('/documents'),
   getDocumentById: (id) => API.get(`/documents/${id}`),
+  extractText: (id) => API.post(`/documents/${id}/extract-text`),
+  analyzeDocument: (id) => API.post(`/documents/${id}/analyze`),
+  getAnalysis: (id) => API.get(`/documents/${id}/analysis`),
   deleteDocument: (id) => API.delete(`/documents/${id}`),
 }
 
@@ -77,12 +80,19 @@ export const remindersAPI = {
 
 // ─── AI Legal Reports API Endpoints ───────────────────────────────────────────
 export const reportsAPI = {
+  getReports: (params) => API.get('/reports', { params }),
+  getReportById: (id) => API.get(`/reports/${id}`),
+  generateReport: (data) => API.post('/reports/generate', data),
   generatePDFReport: (documentId) => API.get(`/reports/pdf/${documentId}`, { responseType: 'blob' }),
   exportSummaryJSON: (documentId) => API.get(`/reports/json/${documentId}`),
+  deleteReport: (id) => API.delete(`/reports/${id}`),
 }
 
 // ─── Legal Help Services Hub Endpoints ───────────────────────────────────────
 export const legalServicesAPI = {
+  getServices: (params) => API.get('/legal-services', { params }),
+  searchServices: (params) => API.get('/legal-services/search', { params }),
+  getServiceById: (id) => API.get(`/legal-services/${id}`),
   searchAdvocates: (params) => API.get('/legal-services/advocates', { params }),
   getLegalAidCenters: (params) => API.get('/legal-services/aid-centers', { params }),
   getEdaakhilGuides: () => API.get('/legal-services/edaakhil-guides'),

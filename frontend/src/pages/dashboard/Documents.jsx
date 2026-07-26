@@ -1,26 +1,22 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   FileText,
   Search,
-  Filter,
   Trash2,
   Eye,
   Plus,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   HardDrive,
   Sparkles,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../../components/common/PageHeader'
 import { documentsAPI } from '../../services/api'
-import { mockDocuments } from '../../data/mockData'
 import toast from 'react-hot-toast'
 
 function formatBytes(bytes) {
-  if (!bytes) return '1.2 MB'
+  if (!bytes || bytes === 0) return '0 Bytes'
   if (typeof bytes === 'string') return bytes
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
@@ -41,11 +37,11 @@ export default function Documents() {
       .getDocuments()
       .then((res) => {
         const fetched = res.data?.data?.documents || []
-        setDocuments(fetched.length > 0 ? fetched : mockDocuments)
+        setDocuments(fetched)
       })
-      .catch(() => {
-        // Fallback to mock documents if backend is offline
-        setDocuments(mockDocuments)
+      .catch((err) => {
+        toast.error('Failed to load documents from server.')
+        setDocuments([])
       })
       .finally(() => setLoading(false))
   }
@@ -56,35 +52,35 @@ export default function Documents() {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation()
-    if (!window.confirm('Are you sure you want to delete this document?')) return
+    if (!window.confirm('Are you sure you want to delete this document? This action cannot be undone.')) return
 
     try {
       await documentsAPI.deleteDocument(id)
       setDocuments((prev) => prev.filter((d) => (d._id || d.id) !== id))
-      toast.success('Document deleted.')
+      toast.success('Document deleted successfully.')
     } catch (err) {
-      setDocuments((prev) => prev.filter((d) => (d._id || d.id) !== id))
-      toast.success('Document deleted (Demo Mode).')
+      toast.error(err.message || 'Failed to delete document.')
     }
   }
 
   const filteredDocs = documents.filter((doc) => {
     const title = doc.title || doc.name || doc.originalFileName || ''
     const matchesSearch = title.toLowerCase().includes(search.toLowerCase())
-    const matchesType = selectedType === 'All' || doc.type === selectedType || selectedType === 'Uploaded'
+    const docMime = (doc.mimeType || '').split('/')[1]?.toUpperCase() || 'PDF'
+    const matchesType = selectedType === 'All' || docMime === selectedType || doc.type === selectedType
     return matchesSearch && matchesType
   })
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <PageHeader
           title="Documents Vault"
-          subtitle="Manage, view, and run AI analysis on all your uploaded legal documents."
+          subtitle="Manage, view, and run AI legal analysis on all your uploaded documents."
         />
         <button
           onClick={() => navigate('/dashboard/upload')}
-          className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold px-4 py-2.5 text-xs shadow-md transition-all self-start sm:self-center shrink-0"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-semibold px-4 py-2.5 text-xs shadow-md transition-all self-start sm:self-center shrink-0 cursor-pointer"
         >
           <Plus size={16} /> Upload New Document
         </button>
@@ -106,11 +102,11 @@ export default function Documents() {
 
         {/* Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-          {['All', 'Contract', 'Notice', 'Agreement', 'Deed', 'FIR'].map((type) => (
+          {['All', 'PDF', 'PNG', 'JPEG', 'JPG'].map((type) => (
             <button
               key={type}
               onClick={() => setSelectedType(type)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
                 selectedType === type
                   ? 'border-[var(--color-primary)] bg-[var(--color-primary-50)] text-[var(--color-primary-dark)] shadow-xs'
                   : 'border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)]'
@@ -122,7 +118,7 @@ export default function Documents() {
         </div>
       </div>
 
-      {/* Documents Grid / Table */}
+      {/* Documents Grid */}
       {loading ? (
         <div className="flex h-48 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
@@ -131,10 +127,10 @@ export default function Documents() {
         <div className="card p-12 text-center space-y-3">
           <FileText size={40} className="mx-auto text-[var(--color-text-muted)]" />
           <h3 className="text-sm font-bold text-[var(--color-text)]">No Documents Found</h3>
-          <p className="text-xs text-[var(--color-text-muted)]">Upload your first legal document to get started.</p>
+          <p className="text-xs text-[var(--color-text-muted)]">Upload your legal document to start AI analysis.</p>
           <button
             onClick={() => navigate('/dashboard/upload')}
-            className="inline-flex items-center gap-1.5 btn-primary text-xs mt-2"
+            className="inline-flex items-center gap-1.5 btn-primary text-xs mt-2 cursor-pointer mx-auto"
           >
             <Plus size={14} /> Upload Document
           </button>
@@ -144,6 +140,7 @@ export default function Documents() {
           {filteredDocs.map((doc) => {
             const docId = doc._id || doc.id
             const docTitle = doc.title || doc.name || doc.originalFileName
+            const docFormat = (doc.mimeType || '').split('/')[1]?.toUpperCase() || 'PDF'
 
             return (
               <motion.div
@@ -160,9 +157,9 @@ export default function Documents() {
                       </div>
                       <div>
                         <span className="text-[10px] font-bold text-[var(--color-primary-dark)] uppercase tracking-wider">
-                          {doc.type || 'Legal Document'}
+                          {docFormat} Document
                         </span>
-                        <h4 className="text-xs sm:text-sm font-bold text-[var(--color-text)] line-clamp-1">
+                        <h4 className="text-xs sm:text-sm font-bold text-[var(--color-text)] line-clamp-1" title={docTitle}>
                           {docTitle}
                         </h4>
                       </div>
@@ -171,11 +168,11 @@ export default function Documents() {
 
                   <div className="flex items-center gap-3 text-[11px] text-[var(--color-text-muted)] pt-1">
                     <span className="flex items-center gap-1">
-                      <HardDrive size={12} /> {formatBytes(doc.fileSize || doc.size)}
+                      <HardDrive size={12} /> {formatBytes(doc.fileSize)}
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
-                      <Clock size={12} /> {doc.uploadedOn || new Date(doc.createdAt || Date.now()).toLocaleDateString('en-IN')}
+                      <Clock size={12} /> {new Date(doc.createdAt || Date.now()).toLocaleDateString('en-IN')}
                     </span>
                   </div>
                 </div>

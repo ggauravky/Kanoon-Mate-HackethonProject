@@ -22,78 +22,6 @@ import toast from 'react-hot-toast'
 import SectionCard from '../../components/common/SectionCard'
 import VoicePlayer from '../../components/voice/VoicePlayer'
 import { documentsAPI, reportsAPI } from '../../services/api'
-import { mockDocuments } from '../../data/mockData'
-
-// Fallback mock analysis data for offline / preview mode
-const mockAnalysisData = {
-  documentId: 'doc_001',
-  title: 'Rent Agreement – Sector 21, Noida',
-  analysisStatus: 'AI Completed',
-  analysisCompletedAt: new Date().toISOString(),
-  analysis: {
-    documentType: 'Rent / Lease Agreement',
-    language: 'English',
-    summary:
-      'This document is a residential rent agreement between the property owner (Landlord) and the tenant for a 11-month tenure in Noida, UP.',
-    simpleExplanation:
-      'This is a standard 11-month residential rental contract. It specifies that you must pay monthly rent by the 5th of every month. The security deposit equals 2 months of rent, refundable at lease end after deducting utility arrears. Notice period for early termination is 1 month for either party.',
-    keyPoints: [
-      'Monthly rent of ₹22,000 payable in advance by the 5th of each calendar month.',
-      'Refundable security deposit of ₹44,000 held by landlord during tenure.',
-      '1-month mandatory notice period required before early vacation by tenant.',
-      'Tenant is responsible for internal minor maintenance and electricity bills.',
-      'Automatic rent escalation of 10% upon renewal after 11 months.',
-    ],
-    importantDates: [
-      {
-        date: '5th of every month',
-        description: 'Monthly rent payment due date.',
-      },
-      {
-        date: '2026-06-30',
-        description: 'Lease agreement expiration & renewal review date.',
-      },
-      {
-        date: '30 days prior',
-        description: 'Notice submission deadline for lease termination.',
-      },
-    ],
-    detectedLaws: [
-      {
-        act: 'Transfer of Property Act, 1882',
-        section: 'Section 105 & Section 108',
-        reason:
-          'Defines legal rights and duties of lessors (landlords) and lessees (tenants) regarding possession and rent.',
-      },
-      {
-        act: 'Registration Act, 1908',
-        section: 'Section 17(1)(d)',
-        reason:
-          'Exempts leases under 1 year (11 months) from compulsory sub-registrar registration requirements.',
-      },
-      {
-        act: 'UP Regulation of Urban Premises Tenancy Act, 2021',
-        section: 'Section 9 & 10',
-        reason: 'Governs tenancy agreements and dispute procedures in Uttar Pradesh.',
-      },
-    ],
-    requiredActions: [
-      'Obtain bank transaction receipts for all security deposit transfers.',
-      'Verify landlord property ownership documents (electricity bill or allotment letter).',
-      'Take photos/video of property handover condition before moving in.',
-      'Keep signed duplicate copy of agreement safely in digital storage.',
-    ],
-    riskLevel: 'Low',
-    questionsYouMayAsk: [
-      'What happens if the landlord delays security deposit refund?',
-      'Can rent be increased before the 11-month period ends?',
-      'Can I deduct minor repair costs from monthly rent?',
-      'What are my rights if notice is given orally instead of written?',
-    ],
-    disclaimer:
-      'This analysis is AI-generated for informational purposes and does not constitute formal legal advice. Please consult a registered advocate for formal legal representation.',
-  },
-}
 
 // ─── Risk Badge Component ───────────────────────────────────────────────────────
 function RiskBadge({ level }) {
@@ -169,31 +97,21 @@ export default function DocumentAnalysis() {
     setLoading(true)
     setError(null)
     try {
-      if (id && id.startsWith('doc_')) {
-        // Mock document route preview
-        const found = mockDocuments.find((d) => d.id === id)
-        await new Promise((r) => setTimeout(r, 600))
-        setDocData({
-          ...mockAnalysisData,
-          documentId: id,
-          title: found ? found.name : mockAnalysisData.title,
-        })
-      } else if (id) {
-        // Real API call
+      if (id) {
         const res = await documentsAPI.getAnalysis(id)
         if (res.data?.data?.analysisStatus === 'AI Completed') {
           setDocData(res.data.data)
         } else {
-          // Trigger analysis if not yet performed
+          // Trigger analysis if not yet performed or in progress
           triggerAnalyze(id)
           return
         }
       } else {
-        setDocData(mockAnalysisData)
+        setError('No document ID specified for AI analysis.')
       }
     } catch (err) {
-      console.warn('Backend API unavailable, displaying mock analysis:', err.message)
-      setDocData(mockAnalysisData)
+      console.error('Fetch analysis error:', err.message)
+      setError(err.message || 'Failed to load document analysis.')
     } finally {
       setLoading(false)
     }
@@ -270,7 +188,7 @@ export default function DocumentAnalysis() {
     )
   }
 
-  const analysis = docData?.analysis || mockAnalysisData.analysis
+  const analysis = docData?.analysis || {}
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">

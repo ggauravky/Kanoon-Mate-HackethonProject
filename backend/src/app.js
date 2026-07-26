@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import path from 'path'
 import { ApiResponse } from './utils/apiResponse.js'
+import authRoutes from './routes/auth.routes.js'
 import documentRoutes from './routes/document.routes.js'
 import ocrRoutes from './routes/ocr.routes.js'
 import analysisRoutes from './routes/analysis.routes.js'
@@ -40,6 +41,7 @@ app.get('/api/v1/health', (req, res) => {
 })
 
 // System Routes
+app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/documents', documentRoutes)
 app.use('/api/v1/documents', ocrRoutes)
 app.use('/api/v1/documents', analysisRoutes)

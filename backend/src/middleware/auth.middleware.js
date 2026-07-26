@@ -1,53 +1,51 @@
 import jwt from 'jsonwebtoken'
+import User from '../models/user.model.js'
 
 /**
  * Authentication Middleware
- * Protects private routes by verifying JWT in Authorization header or Cookies
+ * Verifies JWT token and fetches authentic user from MongoDB
  */
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
     let token = null
 
-    // 1. Check Authorization Bearer header
+    // 1. Extract Bearer token from Authorization Header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1]
     }
-    // 2. Check signed cookie
+    // 2. Extract token from signed Cookie
     else if (req.cookies && req.cookies.token) {
       token = req.cookies.token
     }
 
-    // If no token provided
-    if (!token) {
-      // Provide fallback mock user ID for local demo testing if requested
-      if (process.env.NODE_ENV === 'development' && req.headers['x-demo-user']) {
-        req.user = { _id: '65a1234567890abcdef12345', email: 'demo@kanoonmate.in', role: 'citizen' }
-        return next()
-      }
-
+    if (!token || token === 'none') {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required. Please provide a valid token.',
+        message: 'Authentication required. Please log in to access this resource.',
       })
     }
 
-    // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'kanoon_mate_super_secret_jwt_key_2026_change_in_production'
-    )
+    // 3. Verify JWT signature
+    const secret = process.env.JWT_SECRET || 'kanoon_mate_super_secret_jwt_key_2026_change_in_production'
+    const decoded = jwt.verify(token, secret)
 
-    req.user = {
-      _id: decoded.id || decoded._id || '65a1234567890abcdef12345',
-      email: decoded.email,
-      role: decoded.role || 'citizen',
+    // 4. Fetch user from MongoDB (single source of truth)
+    const user = await User.findById(decoded.id)
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User account associated with this token no longer exists.',
+      })
     }
 
+    // Attach authentic user instance to Request
+    req.user = user
     next()
   } catch (err) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid or expired authentication token.',
+      message: 'Invalid or expired authentication token. Please log in again.',
     })
   }
 }

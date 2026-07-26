@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { authAPI } from '../services/api'
-import { mockUser } from '../data/mockData'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext(null)
@@ -23,18 +22,22 @@ export function AuthProvider({ children }) {
   // Verify currently logged in user on mount if token exists
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY)
-    if (token && !user) {
+    if (token) {
       authAPI
         .getMe()
         .then((res) => {
           if (res.data?.data?.user) {
             const fetchedUser = res.data.data.user
+            fetchedUser.name = fetchedUser.fullName || fetchedUser.name
             setUser(fetchedUser)
             localStorage.setItem(USER_KEY, JSON.stringify(fetchedUser))
           }
         })
         .catch(() => {
-          // Fallback to mock session if backend is unavailable or token expired
+          // If token expired or invalid on server, purge local state
+          localStorage.removeItem(USER_KEY)
+          localStorage.removeItem(TOKEN_KEY)
+          setUser(null)
         })
     }
   }, [])
@@ -43,37 +46,24 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     setLoading(true)
     try {
-      // Try backend authentication
       const response = await authAPI.login({ email, password })
       const { user: userData, token } = response.data?.data || {}
 
       if (token) {
         localStorage.setItem(TOKEN_KEY, token)
       }
-      const finalUser = userData || {
-        name: email.split('@')[0],
-        email,
-        role: 'citizen',
-      }
+
+      const finalUser = userData || {}
+      finalUser.name = finalUser.fullName || finalUser.name || email.split('@')[0]
 
       localStorage.setItem(USER_KEY, JSON.stringify(finalUser))
       setUser(finalUser)
-      toast.success(`Welcome back, ${finalUser.name || 'User'}!`)
+      toast.success(`Welcome back, ${finalUser.name}!`)
       return finalUser
     } catch (err) {
-      // If backend fails/offline, handle fallback gracefully for UI demo
-      console.warn('Backend login fallback active:', err.message)
-      const fallbackUser = {
-        id: 'usr_demo',
-        name: email ? email.split('@')[0].toUpperCase() : 'Gaurav Sharma',
-        email: email || 'gaurav.sharma@example.com',
-        role: 'citizen',
-        plan: 'Pro',
-      }
-      localStorage.setItem(USER_KEY, JSON.stringify(fallbackUser))
-      setUser(fallbackUser)
-      toast.success('Logged in (Demo Mode)!')
-      return fallbackUser
+      const errorMsg = err.message || 'Login failed. Please check your credentials.'
+      toast.error(errorMsg)
+      throw new Error(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -83,35 +73,30 @@ export function AuthProvider({ children }) {
   const register = useCallback(async (userData) => {
     setLoading(true)
     try {
-      const response = await authAPI.register(userData)
+      const response = await authAPI.register({
+        fullName: userData.fullName || userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: userData.role || 'citizen',
+      })
+
       const { user: newUser, token } = response.data?.data || {}
 
       if (token) {
         localStorage.setItem(TOKEN_KEY, token)
       }
-      const finalUser = newUser || {
-        name: userData.fullName || userData.name,
-        email: userData.email,
-        role: userData.role || 'citizen',
-      }
+
+      const finalUser = newUser || {}
+      finalUser.name = finalUser.fullName || finalUser.name || userData.email.split('@')[0]
 
       localStorage.setItem(USER_KEY, JSON.stringify(finalUser))
       setUser(finalUser)
       toast.success('Account created successfully!')
       return finalUser
     } catch (err) {
-      console.warn('Backend register fallback active:', err.message)
-      const fallbackUser = {
-        id: 'usr_new',
-        name: userData.fullName || userData.name || 'New Citizen User',
-        email: userData.email,
-        role: userData.role || 'citizen',
-        plan: 'Standard',
-      }
-      localStorage.setItem(USER_KEY, JSON.stringify(fallbackUser))
-      setUser(fallbackUser)
-      toast.success('Account created (Demo Mode)!')
-      return fallbackUser
+      const errorMsg = err.message || 'Registration failed. Please check your details.'
+      toast.error(errorMsg)
+      throw new Error(errorMsg)
     } finally {
       setLoading(false)
     }

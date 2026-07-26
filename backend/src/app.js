@@ -8,6 +8,7 @@ import ocrRoutes from './routes/ocr.routes.js'
 import analysisRoutes from './routes/analysis.routes.js'
 import reminderRoutes from './routes/reminder.routes.js'
 import reportRoutes from './routes/report.routes.js'
+import legalServiceRoutes from './routes/legalService.routes.js'
 
 const app = express()
 
@@ -36,12 +37,13 @@ app.get('/api/v1/health', (req, res) => {
   })
 })
 
-// Document & Reminder System Routes
+// Document & Legal Service System Routes
 app.use('/api/v1/documents', documentRoutes)
 app.use('/api/v1/documents', ocrRoutes)
 app.use('/api/v1/documents', analysisRoutes)
 app.use('/api/v1/reminders', reminderRoutes)
 app.use('/api/v1/reports', reportRoutes)
+app.use('/api/v1/legal-services', legalServiceRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {

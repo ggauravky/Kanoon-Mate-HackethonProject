@@ -11,6 +11,9 @@ import DocumentAnalysis from '../pages/dashboard/DocumentAnalysis'
 import History from '../pages/dashboard/History'
 import Deadlines from '../pages/dashboard/Deadlines'
 import Reports from '../pages/dashboard/Reports'
+import LegalHelp from '../pages/dashboard/LegalHelp'
+import ServiceDetails from '../pages/dashboard/ServiceDetails'
+import Favorites from '../pages/dashboard/Favorites'
 import AIChat from '../pages/dashboard/AIChat'
 import Profile from '../pages/dashboard/Profile'
 import Settings from '../pages/dashboard/Settings'
@@ -32,6 +35,9 @@ function AppRoutes() {
             <Route path="upload" element={<Upload />} />
             <Route path="analysis/:id" element={<DocumentAnalysis />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="legal-help" element={<LegalHelp />} />
+            <Route path="legal-help/:id" element={<ServiceDetails />} />
+            <Route path="favorites" element={<Favorites />} />
             <Route path="chat" element={<AIChat />} />
             <Route path="deadlines" element={<Deadlines />} />
             <Route path="history" element={<History />} />

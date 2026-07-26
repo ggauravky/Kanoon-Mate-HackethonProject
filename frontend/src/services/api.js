@@ -75,4 +75,11 @@ export const remindersAPI = {
   deleteReminder: (id) => API.delete(`/reminders/${id}`),
 }
 
+export const reportsAPI = {
+  generateReport: (documentId) => API.post(`/reports/${documentId}/generate`),
+  getReports: (params) => API.get('/reports', { params }),
+  getReportById: (id) => API.get(`/reports/${id}`),
+  deleteReport: (id) => API.delete(`/reports/${id}`),
+}
+
 export default API

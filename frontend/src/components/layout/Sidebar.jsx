@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  FileCheck2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
@@ -24,6 +25,7 @@ const navItems = [
   { id: 'dashboard',  label: 'Dashboard',      icon: LayoutDashboard, to: '/dashboard',           end: true  },
   { id: 'documents',  label: 'My Documents',   icon: FileText,        to: '/dashboard/documents'              },
   { id: 'upload',     label: 'Upload Document',icon: Upload,           to: '/dashboard/upload'                },
+  { id: 'reports',    label: 'Legal Reports',  icon: FileCheck2,      to: '/dashboard/reports'               },
   { id: 'chat',       label: 'AI Assistant',   icon: Bot,             to: '/dashboard/chat'                  },
   { id: 'deadlines',  label: 'Deadlines',      icon: CalendarClock,   to: '/dashboard/deadlines'             },
   { id: 'history',    label: 'History',         icon: History,         to: '/dashboard/history'               },

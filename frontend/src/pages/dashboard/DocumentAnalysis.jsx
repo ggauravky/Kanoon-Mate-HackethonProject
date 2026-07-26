@@ -15,10 +15,12 @@ import {
   AlertCircle,
   RotateCw,
   Copy,
+  FileCheck2,
+  Loader2,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import SectionCard from '../../components/common/SectionCard'
-import { documentsAPI } from '../../services/api'
+import { documentsAPI, reportsAPI } from '../../services/api'
 import { mockDocuments } from '../../data/mockData'
 
 // Fallback mock analysis data for offline / preview mode
@@ -122,9 +124,29 @@ export default function DocumentAnalysis() {
 
   const [loading, setLoading] = useState(true)
   const [analyzing, setAnalyzing] = useState(false)
+  const [generatingReport, setGeneratingReport] = useState(false)
   const [docData, setDocData] = useState(null)
   const [error, setError] = useState(null)
   const [checkedActions, setCheckedActions] = useState({})
+
+  const handleGenerateReport = async () => {
+    if (!id || id.startsWith('doc_')) {
+      toast.success('Generated legal report PDF (Demo Mode)')
+      navigate('/dashboard/reports')
+      return
+    }
+
+    setGeneratingReport(true)
+    try {
+      await reportsAPI.generateReport(id)
+      toast.success('Legal PDF report generated successfully!')
+      navigate('/dashboard/reports')
+    } catch (err) {
+      toast.error(err.message || 'Failed to generate PDF report')
+    } finally {
+      setGeneratingReport(false)
+    }
+  }
 
   const triggerAnalyze = useCallback(async (docId) => {
     setAnalyzing(true)
@@ -268,13 +290,24 @@ export default function DocumentAnalysis() {
           </div>
         </div>
 
-        <button
-          onClick={() => triggerAnalyze(id)}
-          className="btn-ghost text-xs gap-2 border border-[var(--color-border)] self-start sm:self-auto"
-          id="reanalyze-btn"
-        >
-          <RotateCw size={14} /> Re-analyze
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={handleGenerateReport}
+            disabled={generatingReport}
+            className="btn-primary text-xs gap-2 shadow-xs cursor-pointer disabled:opacity-60"
+          >
+            {generatingReport ? <Loader2 size={14} className="animate-spin" /> : <FileCheck2 size={14} />}
+            <span>{generatingReport ? 'Generating PDF...' : 'Generate PDF Report'}</span>
+          </button>
+
+          <button
+            onClick={() => triggerAnalyze(id)}
+            className="btn-ghost text-xs gap-2 border border-[var(--color-border)]"
+            id="reanalyze-btn"
+          >
+            <RotateCw size={14} /> Re-analyze
+          </button>
+        </div>
       </div>
 
       {/* ── Summary Card ───────────────────────────────────────────────────────── */}

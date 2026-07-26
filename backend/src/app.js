@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import path from 'path'
 import { ApiResponse } from './utils/apiResponse.js'
 import documentRoutes from './routes/document.routes.js'
+import ocrRoutes from './routes/ocr.routes.js'
 
 const app = express()
 
@@ -34,6 +35,7 @@ app.get('/api/v1/health', (req, res) => {
 
 // Document System Routes
 app.use('/api/v1/documents', documentRoutes)
+app.use('/api/v1/documents', ocrRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {

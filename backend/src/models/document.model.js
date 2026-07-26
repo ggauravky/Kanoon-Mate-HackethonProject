@@ -47,6 +47,23 @@ const documentSchema = new mongoose.Schema(
       enum: ['uploaded', 'processing', 'analyzed', 'failed'],
       default: 'uploaded',
     },
+    ocrStatus: {
+      type: String,
+      enum: ['Uploaded', 'Processing OCR', 'OCR Completed', 'OCR Failed'],
+      default: 'Uploaded',
+    },
+    ocrText: {
+      type: String,
+      default: '',
+    },
+    ocrCompletedAt: {
+      type: Date,
+      default: null,
+    },
+    processingTime: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

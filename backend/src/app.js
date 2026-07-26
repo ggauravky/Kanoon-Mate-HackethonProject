@@ -18,9 +18,26 @@ import advocateDashboardRoutes from './routes/advocateDashboard.routes.js'
 const app = express()
 
 // CORS Middleware
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000',
+].filter(Boolean)
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (
+        process.env.CLIENT_URL === '*' ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app')
+      ) {
+        return callback(null, true)
+      }
+      return callback(null, true)
+    },
     credentials: true,
   })
 )

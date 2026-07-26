@@ -15,6 +15,7 @@ import History from '../pages/dashboard/History'
 import Deadlines from '../pages/dashboard/Deadlines'
 import Reports from '../pages/dashboard/Reports'
 import LegalHelp from '../pages/dashboard/LegalHelp'
+import LegalHub from '../pages/dashboard/LegalHub'
 import ServiceDetails from '../pages/dashboard/ServiceDetails'
 import Favorites from '../pages/dashboard/Favorites'
 import Notifications from '../pages/dashboard/Notifications'
@@ -49,6 +50,7 @@ function AppRoutes() {
             <Route path="upload" element={<Upload />} />
             <Route path="analysis/:id" element={<DocumentAnalysis />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="legal-hub" element={<LegalHub />} />
             <Route path="legal-help" element={<LegalHelp />} />
             <Route path="legal-help/:id" element={<ServiceDetails />} />
             <Route path="favorites" element={<Favorites />} />

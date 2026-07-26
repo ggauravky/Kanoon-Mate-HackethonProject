@@ -82,4 +82,10 @@ export const reportsAPI = {
   deleteReport: (id) => API.delete(`/reports/${id}`),
 }
 
+export const legalServicesAPI = {
+  getServices: (params) => API.get('/legal-services', { params }),
+  searchServices: (params) => API.get('/legal-services/search', { params }),
+  getServiceById: (id) => API.get(`/legal-services/${id}`),
+}
+
 export default API

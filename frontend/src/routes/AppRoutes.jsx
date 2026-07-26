@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from '../components/layout/AppLayout'
 import DashboardLayout from '../components/layout/DashboardLayout'
 import ProtectedRoute from './ProtectedRoute'
@@ -34,6 +34,9 @@ function AppRoutes() {
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
+
+        {/* Catch-all redirect to Home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )

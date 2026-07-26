@@ -1,23 +1,11 @@
 <div align="center">
 
-<<<<<<< Updated upstream
-# ⚖️ Kanoon-Mate
-### *Understand Every Legal Document with AI*
-=======
 ![Header Banner](https://capsule-render.vercel.app/api?type=waving&color=0:059669,50:00C2FF,100:00E5A8&height=220&section=header&text=⚖️%20Kanoon-Mate&fontSize=50&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=AI%20Legal%20Document%20Simplifier%20%7C%20Voice%20Assistant%20%7C%20Statutory%20Law%20Mapping&descAlignY=56&descSize=17)
->>>>>>> Stashed changes
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=2400&pause=900&color=00C2FF&center=true&vCenter=true&width=900&lines=React+19+%2B+Vite+8+%2B+Tailwind+CSS+v4;Node.js+%2B+Express+5+%2B+MongoDB+Atlas;Google+Gemini+2.5+Flash+%7C+JSON+Schema+AI;Web+Speech+STT%2FTTS+%7C+Multi-Format+OCR;Statutory+Act+Mapping+(BNS%2C+BNSS%2C+BSA%2C+NI+Act+138)" alt="Typing animation" />
 
 ### *Empowering 1.4 Billion Indian Citizens to Understand, Assess & Speak Legal Documents*
 
-<<<<<<< Updated upstream
-**Kanoon-Mate** is an AI-powered legal assistant designed specifically for Indian citizens. It converts complex Indian legal contracts, court notices, rent agreements, and FIR copies into plain, citizen-friendly language—highlighting statutory laws, risk levels, deadlines, and actionable steps.
-
-[🚀 Live Demo](#-quick-start) • [✨ Key Features](#-key-features) • [📐 Architecture](#-system-architecture) • [📖 API Docs](#-api-documentation) • [📜 Pitch Script](#-5-minute-hackathon-demo-script)
-
----
-=======
 ![Team](https://img.shields.io/badge/Team-Bro--Code-FF5722?style=for-the-badge&logo=github&logoColor=white)
 ![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite%208-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![Backend](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express%205-339933?style=for-the-badge&logo=node.js&logoColor=white)
@@ -26,7 +14,6 @@
 ![OCR](https://img.shields.io/badge/OCR-Tesseract.js%20%2B%20PDFParse-FF9800?style=for-the-badge)
 ![Voice](https://img.shields.io/badge/Voice-Web%20Speech%20STT%2FTTS-00E5FF?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
->>>>>>> Stashed changes
 
 </div>
 
@@ -54,13 +41,6 @@
 
 **Kanoon-Mate** is an end-to-end, production-ready legal AI platform designed to break down legal barriers for Indian citizens. Over **85% of citizens** struggle to read legal notices, court summons, rent agreements, or FIR copies due to archaic legal language and dense terminology.
 
-<<<<<<< Updated upstream
-### The Solution: Kanoon-Mate
-* **Instant Plain-Language Translation:** Explains complex legal clauses in simple English and Hindi.
-* **Statutory Act Mapping:** Automatically detects and cites relevant Indian Acts (e.g. *Bharatiya Nyaya Sanhita (BNS)*, *BNSS*, *BSA*, *NI Act Section 138*, *Model Tenancy Act*).
-* **Interactive AI Assistant & Voice Interface:** Real-time speech-to-text dictation and speech-synthesis read-aloud.
-* **Proactive Deadline & Risk Tracking:** Color-coded risk assessment (Low 🟢, Medium 🟡, High 🔴) with automated timeline extraction.
-=======
 Kanoon-Mate bridges this gap by combining **Multi-Format OCR**, **Google Gemini 2.5 Flash AI**, **Statutory Indian Law Mapping**, **Voice Dictation/Read-Aloud**, and **Proactive Deadline Tracking**.
 
 ### 🎯 Key Objectives:
@@ -80,7 +60,6 @@ Kanoon-Mate bridges this gap by combining **Multi-Format OCR**, **Google Gemini 
 | <img src="https://github.com/ydevansh.png" width="60" style="border-radius:50%" /> | **Devansh Yadav** | [@ydevansh](https://github.com/ydevansh) | Project Lead, Frontend Architecture, Tailwind v4 UI System & Framer Motion |
 | <img src="https://github.com/ggauravky.png" width="60" style="border-radius:50%" /> | **Gaurav Kumar Yadav** | [@ggauravky](https://github.com/ggauravky) | AI Pipeline Integration, Gemini 2.5 JSON Schema Prompt Engineering & Voice STT/TTS |
 | <img src="https://github.com/nikhilxagr.png" width="60" style="border-radius:50%" /> | **Nikhil** | [@nikhilxagr](https://github.com/nikhilxagr) | Full-Stack Core, Express.js Backend Architecture, MongoDB Schemas & Security |
->>>>>>> Stashed changes
 
 ---
 
@@ -346,11 +325,7 @@ npm run dev
 
 ## 🎙 Voice Assistant & Multilingual AI
 
-<<<<<<< Updated upstream
-Kanoon-Mate incorporates browser-native speech synthesis and recognition:
-=======
 Kanoon-Mate features native browser speech integration:
->>>>>>> Stashed changes
 
 ```text
 [ 🎤 Dictate Legal Query ]  ──(Web Speech STT)──>  [ Text Query ]  ──>  [ Gemini AI ]

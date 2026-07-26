@@ -2,6 +2,7 @@ import {
   registerUserService,
   loginUserService,
   getMeService,
+  updateProfilePictureService,
 } from '../services/auth.service.js'
 
 // Helper: Set HTTP-Only Cookie and return standardized JSON response
@@ -88,6 +89,26 @@ export const getMe = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      data: { user },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * @desc    Upload or update profile picture via Cloudinary
+ * @route   PUT /api/v1/auth/profile-picture
+ * @access  Private
+ */
+export const updateProfilePicture = async (req, res, next) => {
+  try {
+    const userId = req.user?._id || req.user?.id
+    const user = await updateProfilePictureService(userId, req.file)
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile picture updated successfully',
       data: { user },
     })
   } catch (error) {

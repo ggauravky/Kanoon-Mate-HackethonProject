@@ -1,10 +1,9 @@
 import Document from '../models/document.model.js'
-import fs from 'fs/promises'
-import path from 'path'
+import { uploadToCloudinary, deleteFromCloudinary } from './upload.service.js'
 import { createNotificationService } from './notification.service.js'
 
 /**
- * Service: Create document metadata entry in database
+ * Service: Upload document to Cloudinary and create document metadata entry in database
  */
 export const createDocumentService = async ({ file, userId, title }) => {
   if (!file) {
@@ -15,13 +14,23 @@ export const createDocumentService = async ({ file, userId, title }) => {
 
   const documentTitle = title?.trim() || file.originalname
 
+  // Upload file buffer directly to Cloudinary
+  const resourceType = file.mimetype === 'application/pdf' ? 'raw' : 'auto'
+  const cloudinaryResult = await uploadToCloudinary(file.buffer, {
+    folder: 'kanoon_mate/documents',
+    fileName: file.originalname,
+    resource_type: resourceType,
+  })
+
   const newDoc = await Document.create({
     title: documentTitle,
     originalFileName: file.originalname,
-    storedFileName: file.filename,
+    storedFileName: cloudinaryResult.publicId || file.originalname,
     mimeType: file.mimetype,
     fileSize: file.size,
-    filePath: file.path.replace(/\\/g, '/'), // normalize Windows backslashes
+    filePath: cloudinaryResult.url,
+    fileUrl: cloudinaryResult.url,
+    publicId: cloudinaryResult.publicId,
     uploadedBy: userId,
     uploadStatus: 'uploaded',
   })
@@ -31,7 +40,7 @@ export const createDocumentService = async ({ file, userId, title }) => {
     await createNotificationService({
       userId,
       title: 'Document Uploaded Successfully',
-      message: `"${documentTitle}" has been uploaded and stored in your vault.`,
+      message: `"${documentTitle}" has been uploaded and stored in your Cloudinary vault.`,
       type: 'Document Uploaded',
       priority: 'Low',
       relatedDocument: newDoc._id,
@@ -58,7 +67,7 @@ export const getDocumentByIdService = async (documentId, userId) => {
 
   if (!document) {
     const error = new Error('Document not found')
-    error.statusCode = 44
+    error.statusCode = 404
     throw error
   }
 
@@ -73,17 +82,15 @@ export const getDocumentByIdService = async (documentId, userId) => {
 }
 
 /**
- * Service: Delete document record and physical file from disk
+ * Service: Delete document record from MongoDB and file from Cloudinary
  */
 export const deleteDocumentService = async (documentId, userId) => {
   const document = await getDocumentByIdService(documentId, userId)
 
-  // Remove physical file from uploads folder
-  try {
-    const fullPath = path.resolve(document.filePath)
-    await fs.unlink(fullPath)
-  } catch (fsErr) {
-    console.warn(`Physical file deletion warning for ${document.filePath}:`, fsErr.message)
+  // Remove file from Cloudinary if publicId exists
+  if (document.publicId) {
+    const resourceType = document.mimeType === 'application/pdf' ? 'raw' : 'image'
+    await deleteFromCloudinary(document.publicId, resourceType)
   }
 
   // Delete database record

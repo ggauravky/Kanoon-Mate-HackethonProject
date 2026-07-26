@@ -160,7 +160,8 @@ export default function DocumentDetailsPage() {
 
   const isImage = doc.mimeType?.startsWith('image/')
   const isPdf = doc.mimeType === 'application/pdf'
-  const fileUrl = doc.filePath ? `${BASE_URL}/${doc.filePath}` : null
+  const targetPath = doc.fileUrl || doc.filePath
+  const fileUrl = targetPath ? (targetPath.startsWith('http') ? targetPath : `${BASE_URL}/${targetPath}`) : null
 
   const wordCount = doc.ocrText ? (doc.ocrText.match(/\S+/g) || []).length : 0
   const charCount = doc.ocrText ? doc.ocrText.length : 0

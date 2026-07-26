@@ -81,9 +81,14 @@ export default function Reports() {
     }
   }
 
+  const getReportUrl = (report) => {
+    const target = report?.fileUrl || report?.filePath || ''
+    return target.startsWith('http') ? target : `${BASE_URL}/${target}`
+  }
+
   const handleDownload = (report, e) => {
     e?.stopPropagation()
-    const downloadUrl = `${BASE_URL}/${report.filePath}`
+    const downloadUrl = getReportUrl(report)
     const link = document.createElement('a')
     link.href = downloadUrl
     link.target = '_blank'
@@ -96,7 +101,7 @@ export default function Reports() {
 
   const handlePrint = (report, e) => {
     e?.stopPropagation()
-    const fileUrl = `${BASE_URL}/${report.filePath}`
+    const fileUrl = getReportUrl(report)
     const printWindow = window.open(fileUrl, '_blank')
     if (printWindow) {
       printWindow.focus()
@@ -108,7 +113,7 @@ export default function Reports() {
 
   const handleShare = (report, e) => {
     e?.stopPropagation()
-    const fileUrl = `${BASE_URL}/${report.filePath}`
+    const fileUrl = getReportUrl(report)
     navigator.clipboard.writeText(fileUrl)
     setCopiedId(report._id)
     toast.success('Report link copied to clipboard!')
@@ -326,7 +331,7 @@ export default function Reports() {
               {/* Modal PDF Viewer Body */}
               <div className="flex-1 bg-slate-800 p-2 overflow-hidden">
                 <iframe
-                  src={`${BASE_URL}/${selectedReport.filePath}`}
+                  src={getReportUrl(selectedReport)}
                   title={selectedReport.reportName}
                   className="w-full h-full rounded-2xl border-0"
                 />

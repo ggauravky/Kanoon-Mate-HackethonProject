@@ -22,6 +22,7 @@ import { APP_NAME, APP_TAGLINE } from '../constants/app'
 import LegalTranslatorWidget from '../components/widgets/LegalTranslatorWidget'
 import CitizenRightsWidget from '../components/widgets/CitizenRightsWidget'
 import AuthModal from '../components/auth/AuthModal'
+import { useProtectedAction } from '../hooks/useProtectedAction'
 
 const FAQ_DATA = [
   {
@@ -44,7 +45,7 @@ const FAQ_DATA = [
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const { executeProtectedAction, authModalOpen, setAuthModalOpen, targetPath, loading } = useProtectedAction()
   const [openFaqIndex, setOpenFaqIndex] = useState(0)
 
   return (
@@ -99,8 +100,9 @@ export default function HomePage() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
           >
             <button
-              onClick={() => navigate('/dashboard/upload')}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold px-8 py-4 text-base shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              onClick={() => executeProtectedAction('/dashboard/upload')}
+              disabled={loading}
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold px-8 py-4 text-base shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
             >
               <FileText size={18} />
               <span>Upload Document to Simplify</span>
@@ -108,8 +110,9 @@ export default function HomePage() {
             </button>
 
             <button
-              onClick={() => navigate('/dashboard/chat')}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-white font-semibold px-6 py-4 text-base backdrop-blur-md transition-all hover:border-slate-600"
+              onClick={() => executeProtectedAction('/dashboard/chat')}
+              disabled={loading}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-white font-semibold px-6 py-4 text-base backdrop-blur-md transition-all hover:border-slate-600 disabled:opacity-50"
             >
               <Bot size={18} className="text-indigo-400" />
               <span>Ask AI Assistant</span>
@@ -308,7 +311,8 @@ export default function HomePage() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        initialMode="register"
+        initialMode="login"
+        redirectPath={targetPath}
       />
     </div>
   )

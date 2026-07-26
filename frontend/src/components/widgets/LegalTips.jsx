@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Lightbulb, ChevronLeft, ChevronRight } from 'lucide-react'
-import { legalTips } from '../../data/mockData'
+import { legalTips } from '../../data/legalTips'
 
 const categoryColors = {
   General:    'badge badge-blue',

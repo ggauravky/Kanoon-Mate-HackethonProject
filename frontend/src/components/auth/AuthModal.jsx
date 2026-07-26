@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Lock, User, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
-export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
+export default function AuthModal({ isOpen, onClose, initialMode = 'login', redirectPath }) {
   const [mode, setMode] = useState(initialMode) // 'login' | 'register'
   const { login, register, loading } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Form State
   const [fullName, setFullName] = useState('')
@@ -19,9 +20,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   if (!isOpen) return null
 
   const handleDemoFill = () => {
-    setEmail('citizen.demo@kanoonmate.in')
+    setEmail('gaurav@gmail.com')
     setPassword('DemoPass@123')
-    setFullName('Rajesh Kumar')
+    setFullName('Gaurav Kumar Yadav')
     setError('')
   }
 
@@ -50,7 +51,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         await register({ fullName, email, password, role })
       }
       onClose()
-      navigate('/dashboard')
+      const destination = redirectPath || location.state?.from || '/dashboard'
+      navigate(destination)
     } catch (err) {
       setError(err.message || 'Authentication failed. Please check your inputs.')
     }
@@ -160,7 +162,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Rajesh Kumar"
+                    placeholder="e.g. Gaurav Kumar Yadav"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"

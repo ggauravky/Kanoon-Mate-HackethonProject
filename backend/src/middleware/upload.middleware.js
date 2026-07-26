@@ -1,40 +1,9 @@
 import multer from 'multer'
 import path from 'path'
-import crypto from 'crypto'
-import fs from 'fs'
+import { ALLOWED_MIME_TYPES, ALLOWED_EXTENSIONS } from '../services/upload.service.js'
 
-// Ensure uploads directory exists
-const uploadDir = path.resolve('uploads')
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true })
-}
-
-// ─── Multer Disk Storage Configuration ───────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir)
-  },
-  filename: (req, file, cb) => {
-    // Generate unique file name: timestamp-random-sanitizedName
-    const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}`
-    const ext = path.extname(file.originalname).toLowerCase()
-    const sanitizedBase = path
-      .basename(file.originalname, ext)
-      .replace(/[^a-zA-Z0-9_-]/g, '_')
-
-    cb(null, `${sanitizedBase}-${uniqueSuffix}${ext}`)
-  },
-})
-
-// ─── Allowed File Formats ───────────────────────────────────────────────────
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-]
-
-const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png']
+// ─── Multer Memory Storage Configuration (No local disk persistence) ────────
+const storage = multer.memoryStorage()
 
 // ─── File Filter Middleware ──────────────────────────────────────────────────
 const fileFilter = (req, file, cb) => {
@@ -46,7 +15,9 @@ const fileFilter = (req, file, cb) => {
     return cb(null, true)
   }
 
-  const error = new Error('Invalid file type. Only PDF, JPG, JPEG, and PNG files are allowed.')
+  const error = new Error(
+    'Invalid file format. Only PDF, PNG, JPEG, JPG, and WEBP files are supported.'
+  )
   error.statusCode = 400
   cb(error, false)
 }

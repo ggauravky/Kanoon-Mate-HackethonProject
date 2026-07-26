@@ -139,7 +139,7 @@ export default function DocumentDetailsPage() {
               Status: Waiting for AI Analysis
             </span>
             <p className="text-xs text-amber-800 mt-0.5">
-              Your file is securely stored on LawAssist AI servers. AI legal clause extraction & BNSS compliance audit will run in the upcoming processing phase.
+              Your file is securely stored on Kanoon-Mate servers. AI legal clause extraction & BNSS compliance audit will run in the upcoming processing phase.
             </p>
           </div>
         </div>

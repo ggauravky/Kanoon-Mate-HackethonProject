@@ -18,7 +18,7 @@ app.use(
 // Body & Cookie Parsers
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser(process.env.COOKIE_SECRET || 'lawassist_ai_cookie_secret_2026'))
+app.use(cookieParser(process.env.COOKIE_SECRET || 'kanoon_mate_cookie_secret_2026'))
 
 // Static Uploads Folder Serving
 app.use('/uploads', express.static(path.resolve('uploads')))
@@ -27,7 +27,7 @@ app.use('/uploads', express.static(path.resolve('uploads')))
 app.get('/api/v1/health', (req, res) => {
   return res.status(200).json({
     success: true,
-    message: 'LawAssist AI API is operational',
+    message: 'Kanoon-Mate API is operational',
     data: { status: 'UP' },
   })
 })

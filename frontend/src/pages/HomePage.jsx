@@ -25,16 +25,16 @@ import AuthModal from '../components/auth/AuthModal'
 
 const FAQ_DATA = [
   {
-    q: 'What is LawAssist AI and how does it help Indian citizens?',
-    a: 'LawAssist AI is an artificial intelligence platform designed specifically for Indian legal context. It translates complex legal jargon in rental agreements, consumer notices, and employment contracts into plain English and Hindi, while answering legal queries with reference to BNSS, IPC, and Indian statutory acts.',
+    q: 'What is Kanoon-Mate and how does it help Indian citizens?',
+    a: 'Kanoon-Mate is an artificial intelligence platform designed specifically for Indian legal context. It translates complex legal jargon in rental agreements, consumer notices, and employment contracts into plain English and Hindi, while answering legal queries with reference to BNSS, IPC, and Indian statutory acts.',
   },
   {
     q: 'Can I upload my own PDF or scan of a legal document?',
-    a: 'Yes! You can upload rental contracts, legal notices, sale deeds, or FIR copies in PDF or image format. LawAssist AI scans the text, detects hidden risks, lock-in clauses, or unfair penalty terms, and generates a simple 1-page summary.',
+    a: 'Yes! You can upload rental contracts, legal notices, sale deeds, or FIR copies in PDF or image format. Kanoon-Mate scans the text, detects hidden risks, lock-in clauses, or unfair penalty terms, and generates a simple 1-page summary.',
   },
   {
-    q: 'Is LawAssist AI a replacement for a lawyer or advocate?',
-    a: 'No. LawAssist AI is an educational and document simplification assistant. It helps you understand legal terms, prepare for meetings with advocates, and know your statutory rights. For court representation or formal legal opinions, we always recommend consulting a qualified advocate.',
+    q: 'Is Kanoon-Mate a replacement for a lawyer or advocate?',
+    a: 'No. Kanoon-Mate is an educational and document simplification assistant. It helps you understand legal terms, prepare for meetings with advocates, and know your statutory rights. For court representation or formal legal opinions, we always recommend consulting a qualified advocate.',
   },
   {
     q: 'Is my uploaded legal document confidential and private?',
@@ -226,7 +226,7 @@ export default function HomePage() {
       <section id="how-it-works" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-2 max-w-xl mx-auto">
           <span className="text-xs font-semibold text-indigo-400 uppercase tracking-widest">3-Step Simple Process</span>
-          <h2 className="text-3xl font-black text-white">How LawAssist AI Works</h2>
+          <h2 className="text-3xl font-black text-white">How Kanoon-Mate Works</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
@@ -239,7 +239,7 @@ export default function HomePage() {
             {
               step: '02',
               title: 'AI Analysis & Risk Audit',
-              desc: 'LawAssist AI scans clauses against Indian laws, identifies risk factors, and extracts key obligations.',
+              desc: 'Kanoon-Mate scans clauses against Indian laws, identifies risk factors, and extracts key obligations.',
             },
             {
               step: '03',
@@ -291,7 +291,7 @@ export default function HomePage() {
               Ready to Take Control of Your Legal Rights?
             </h2>
             <p className="text-sm text-blue-100">
-              Join thousands of Indian citizens using LawAssist AI to simplify agreements and get instant legal clarity.
+              Join thousands of Indian citizens using Kanoon-Mate to simplify agreements and get instant legal clarity.
             </p>
             <button
               onClick={() => setAuthModalOpen(true)}

@@ -51,7 +51,7 @@ export default function TopNavbar({ onMenuToggle }) {
       {/* Logo — mobile only (desktop logo is in sidebar) */}
       <div className="flex items-center gap-2 lg:hidden">
         <Scale size={18} className="text-[var(--color-primary)]" />
-        <span className="text-sm font-bold text-[var(--color-text)]">LawAssist AI</span>
+        <span className="text-sm font-bold text-[var(--color-text)]">Kanoon-Mate</span>
       </div>
 
       {/* Search Bar */}

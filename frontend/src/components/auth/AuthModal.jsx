@@ -19,7 +19,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   if (!isOpen) return null
 
   const handleDemoFill = () => {
-    setEmail('citizen.demo@lawassist.in')
+    setEmail('citizen.demo@kanoonmate.in')
     setPassword('DemoPass@123')
     setFullName('Rajesh Kumar')
     setError('')
@@ -91,12 +91,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 <ShieldCheck size={20} />
               </span>
               <span className="text-xs font-semibold tracking-wider uppercase text-blue-200">
-                LawAssist AI Portal
+                Kanoon-Mate Portal
               </span>
             </div>
 
             <h2 className="text-xl font-bold">
-              {mode === 'login' ? 'Welcome Back to LawAssist AI' : 'Create Your Free Account'}
+              {mode === 'login' ? 'Welcome Back to Kanoon-Mate' : 'Create Your Free Account'}
             </h2>
             <p className="text-xs text-blue-100/90 mt-1">
               {mode === 'login'

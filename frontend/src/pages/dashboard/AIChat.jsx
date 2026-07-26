@@ -32,8 +32,8 @@ const INITIAL_MSGS = [
   {
     id: 1,
     role: 'assistant',
-    text: 'Namaste! I am LawAssist AI — your Indian legal query assistant. Ask me anything about Rent Agreements, Consumer Forum filings, BNSS/IPC sections, or Cheque dishonour rules.',
-    citation: 'LawAssist Knowledgebase v2.4',
+    text: 'Namaste! I am Kanoon-Mate — your Indian legal query assistant. Ask me anything about Rent Agreements, Consumer Forum filings, BNSS/IPC sections, or Cheque dishonour rules.',
+    citation: 'Kanoon-Mate Knowledgebase v2.4',
   },
 ]
 
@@ -195,7 +195,7 @@ export default function AIChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask LawAssist AI about Indian legal rights, contracts, or BNSS sections…"
+          placeholder="Ask Kanoon-Mate about Indian legal rights, contracts, or BNSS sections…"
           className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-xs"
         />
         <button

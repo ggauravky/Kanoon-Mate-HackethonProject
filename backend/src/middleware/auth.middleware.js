@@ -21,7 +21,7 @@ export const protect = (req, res, next) => {
     if (!token) {
       // Provide fallback mock user ID for local demo testing if requested
       if (process.env.NODE_ENV === 'development' && req.headers['x-demo-user']) {
-        req.user = { _id: '65a1234567890abcdef12345', email: 'demo@lawassist.in', role: 'citizen' }
+        req.user = { _id: '65a1234567890abcdef12345', email: 'demo@kanoonmate.in', role: 'citizen' }
         return next()
       }
 
@@ -34,7 +34,7 @@ export const protect = (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'lawassist_ai_super_secret_jwt_key_2026_change_in_production'
+      process.env.JWT_SECRET || 'kanoon_mate_super_secret_jwt_key_2026_change_in_production'
     )
 
     req.user = {

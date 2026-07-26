@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB & Start Server
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 LawAssist AI Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    console.log(`🚀 Kanoon-Mate Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   });
 }).catch((err) => {
   console.error('Failed to connect to database', err);

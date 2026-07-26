@@ -117,7 +117,7 @@ function SidebarContent({ collapsed, onClose }) {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <span className="text-white font-bold text-base whitespace-nowrap">LawAssist AI</span>
+              <span className="text-white font-bold text-base whitespace-nowrap">Kanoon-Mate</span>
             </motion.div>
           )}
         </AnimatePresence>

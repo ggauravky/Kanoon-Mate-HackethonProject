@@ -12,7 +12,7 @@ const API = axios.create({
 // Request interceptor — attach token if stored in localStorage
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('lawassist_token')
+    const token = localStorage.getItem('kanoon_mate_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }

@@ -60,7 +60,7 @@ export default function LegalTranslatorWidget() {
             <Sparkles size={14} /> Interactive Live Demo
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-white">
-            See How LawAssist AI Converts Jargon into Plain Words
+            See How Kanoon-Mate Converts Jargon into Plain Words
           </h3>
           <p className="text-xs text-slate-400 mt-1">Select a complex legal term below to see instant transformation</p>
         </div>
@@ -126,7 +126,7 @@ export default function LegalTranslatorWidget() {
           </div>
         </div>
 
-        {/* Right: LawAssist AI Plain Explanation */}
+        {/* Right: Kanoon-Mate Plain Explanation */}
         <motion.div
           key={activeItem.id + lang}
           initial={{ opacity: 0, x: 10 }}
@@ -136,7 +136,7 @@ export default function LegalTranslatorWidget() {
         >
           <div className="flex items-center justify-between mb-3 border-b border-indigo-500/20 pb-3">
             <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles size={14} /> LawAssist AI Plain Explanation
+              <Sparkles size={14} /> Kanoon-Mate Plain Explanation
             </span>
             <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-semibold ${
               activeItem.riskLevel.includes('High') || activeItem.riskLevel.includes('Criminal')

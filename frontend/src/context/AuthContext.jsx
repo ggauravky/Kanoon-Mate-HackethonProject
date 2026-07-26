@@ -4,8 +4,8 @@ import { mockUser } from '../data/mockData'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext(null)
-const USER_KEY = 'lawassist_user'
-const TOKEN_KEY = 'lawassist_token'
+const USER_KEY = 'kanoon_mate_user'
+const TOKEN_KEY = 'kanoon_mate_token'
 
 function loadStoredUser() {
   try {

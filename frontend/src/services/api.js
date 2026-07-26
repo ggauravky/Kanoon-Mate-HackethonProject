@@ -3,7 +3,7 @@ import axios from 'axios'
 // ─── Axios Instance ───────────────────────────────────────────────────────────
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
-  withCredentials: true, // sending cookies for auth
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -39,6 +39,20 @@ export const authAPI = {
   login: (credentials) => API.post('/auth/login', credentials),
   logout: () => API.post('/auth/logout'),
   getMe: () => API.get('/auth/me'),
+}
+
+// ─── Document API Endpoints ───────────────────────────────────────────────────
+export const documentsAPI = {
+  uploadDocument: (formData, onUploadProgress) =>
+    API.post('/documents/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress,
+    }),
+  getDocuments: () => API.get('/documents'),
+  getDocumentById: (id) => API.get(`/documents/${id}`),
+  deleteDocument: (id) => API.delete(`/documents/${id}`),
 }
 
 export default API

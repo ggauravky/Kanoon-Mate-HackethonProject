@@ -1,35 +1,59 @@
-import express from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import { ApiResponse } from './utils/apiResponse.js';
+import express from 'express'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import path from 'path'
+import { ApiResponse } from './utils/apiResponse.js'
+import documentRoutes from './routes/document.routes.js'
 
-const app = express();
+const app = express()
 
-// Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(process.env.COOKIE_SECRET));
+// CORS Middleware
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+  })
+)
+
+// Body & Cookie Parsers
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser(process.env.COOKIE_SECRET || 'lawassist_ai_cookie_secret_2026'))
+
+// Static Uploads Folder Serving
+app.use('/uploads', express.static(path.resolve('uploads')))
 
 // Health check route
 app.get('/api/v1/health', (req, res) => {
-  return ApiResponse.success(res, 'LawAssist AI API is operational', { status: 'UP' });
-});
+  return res.status(200).json({
+    success: true,
+    message: 'LawAssist AI API is operational',
+    data: { status: 'UP' },
+  })
+})
+
+// Document System Routes
+app.use('/api/v1/documents', documentRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {
-  return ApiResponse.error(res, `Route ${req.originalUrl} not found`, [], 404);
-});
+  return res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  })
+})
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled Error:', err);
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-  return ApiResponse.error(res, message, err.errors || [], statusCode);
-});
+  console.error('API Error:', err)
+  const statusCode = err.statusCode || 500
+  const message = err.message || 'Internal Server Error'
 
-export default app;
+  return res.status(statusCode).json({
+    success: false,
+    message,
+    errors: err.errors || [],
+  })
+})
+
+export default app

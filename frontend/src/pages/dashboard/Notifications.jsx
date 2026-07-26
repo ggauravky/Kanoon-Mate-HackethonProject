@@ -8,58 +8,14 @@ import {
   FileText,
   Calendar,
   Sparkles,
-  ShieldAlert,
   FileCheck,
-  Filter,
   ExternalLink,
   Clock,
-  CheckCircle2,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../../components/common/PageHeader'
 import { notificationsAPI } from '../../services/api'
 import toast from 'react-hot-toast'
-
-const MOCK_NOTIFS = [
-  {
-    _id: 'notif_1',
-    title: '⚠️ Urgent: 3 Days Left for Reply Notice',
-    message: 'Consumer Forum reply is due in 3 days. Complete filing under Consumer Protection Act 2019.',
-    type: 'Deadline Reminder',
-    priority: 'Critical',
-    isRead: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    relatedDocument: { _id: 'doc_101', title: 'Legal Notice – Consumer Forum' },
-  },
-  {
-    _id: 'notif_2',
-    title: 'AI Analysis Ready for Rent Agreement',
-    message: 'OCR text extraction & BNSS compliance check completed with 0 high-risk terms.',
-    type: 'AI Analysis Ready',
-    priority: 'High',
-    isRead: false,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    relatedDocument: { _id: 'doc_102', title: 'Rent Agreement – Sector 21, Noida' },
-  },
-  {
-    _id: 'notif_3',
-    title: 'Executive Legal Summary PDF Generated',
-    message: 'Your downloadable PDF audit report is now ready in the Reports tab.',
-    type: 'Report Generated',
-    priority: 'Medium',
-    isRead: true,
-    createdAt: new Date(Date.now() - 14400000).toISOString(),
-  },
-  {
-    _id: 'notif_4',
-    title: 'Document Uploaded Successfully',
-    message: 'Property Sale Deed stored in encrypted DPDP compliant storage.',
-    type: 'Document Uploaded',
-    priority: 'Low',
-    isRead: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-]
 
 export default function Notifications() {
   const navigate = useNavigate()
@@ -73,10 +29,11 @@ export default function Notifications() {
       .getNotifications()
       .then((res) => {
         const list = res.data?.data?.notifications || []
-        setNotifications(list.length > 0 ? list : MOCK_NOTIFS)
+        setNotifications(list)
       })
-      .catch(() => {
-        setNotifications(MOCK_NOTIFS)
+      .catch((err) => {
+        toast.error('Failed to load notifications.')
+        setNotifications([])
       })
       .finally(() => setLoading(false))
   }
@@ -91,12 +48,9 @@ export default function Notifications() {
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       )
-      toast.success('Notification marked as read')
-    } catch {
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-      )
-      toast.success('Marked as read (Demo Mode)')
+      toast.success('Notification marked as read.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to mark notification as read.')
     }
   }
 
@@ -104,10 +58,9 @@ export default function Notifications() {
     try {
       await notificationsAPI.markAllAsRead()
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-      toast.success('All notifications marked as read')
-    } catch {
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-      toast.success('All marked as read')
+      toast.success('All notifications marked as read.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to mark all notifications as read.')
     }
   }
 
@@ -115,10 +68,9 @@ export default function Notifications() {
     try {
       await notificationsAPI.deleteNotification(id)
       setNotifications((prev) => prev.filter((n) => n._id !== id))
-      toast.success('Notification deleted')
-    } catch {
-      setNotifications((prev) => prev.filter((n) => n._id !== id))
-      toast.success('Notification deleted')
+      toast.success('Notification deleted.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete notification.')
     }
   }
 
@@ -158,6 +110,8 @@ export default function Notifications() {
     }
   }
 
+  const unreadCount = notifications.filter((n) => !n.isRead).length
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header with Mark All Read CTA */}
@@ -167,13 +121,15 @@ export default function Notifications() {
           subtitle="Stay informed about legal deadlines, document status, and AI insights."
         />
 
-        <button
-          onClick={handleMarkAllRead}
-          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold px-4 py-2.5 text-xs shadow-xs transition-all shrink-0 self-start sm:self-center"
-        >
-          <CheckCheck size={16} className="text-indigo-600" />
-          <span>Mark All as Read</span>
-        </button>
+        {unreadCount > 0 && (
+          <button
+            onClick={handleMarkAllRead}
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold px-4 py-2.5 text-xs shadow-xs transition-all shrink-0 self-start sm:self-center cursor-pointer"
+          >
+            <CheckCheck size={16} className="text-indigo-600" />
+            <span>Mark All as Read</span>
+          </button>
+        )}
       </div>
 
       {/* Filter Tabs */}
@@ -182,7 +138,7 @@ export default function Notifications() {
           <button
             key={tab}
             onClick={() => setActiveFilter(tab)}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               activeFilter === tab
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -205,8 +161,8 @@ export default function Notifications() {
           className="rounded-3xl border border-slate-200 bg-white p-12 text-center space-y-3"
         >
           <Bell size={40} className="mx-auto text-slate-300" />
-          <h3 className="text-sm font-bold text-slate-800">No Notifications</h3>
-          <p className="text-xs text-slate-500">You're all caught up! No notifications match the selected filter.</p>
+          <h3 className="text-sm font-bold text-slate-800">No Notifications Found</h3>
+          <p className="text-xs text-slate-500">You're all caught up! Upload documents or set legal deadlines to receive alerts.</p>
         </motion.div>
       ) : (
         <div className="space-y-3">
@@ -244,8 +200,8 @@ export default function Notifications() {
                       </span>
                       {item.relatedDocument && (
                         <button
-                          onClick={() => navigate(`/document/${item.relatedDocument._id || item.relatedDocument}`)}
-                          className="flex items-center gap-1 text-indigo-600 font-semibold hover:underline"
+                          onClick={() => navigate(`/dashboard/analysis/${item.relatedDocument._id || item.relatedDocument}`)}
+                          className="flex items-center gap-1 text-indigo-600 font-semibold hover:underline cursor-pointer"
                         >
                           <ExternalLink size={12} /> {item.relatedDocument.title || 'View Related Document'}
                         </button>
@@ -259,14 +215,14 @@ export default function Notifications() {
                   {!item.isRead && (
                     <button
                       onClick={() => handleMarkAsRead(item._id)}
-                      className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold px-3 py-1.5 rounded-xl border border-indigo-100 bg-white hover:bg-indigo-50 transition-colors"
+                      className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold px-3 py-1.5 rounded-xl border border-indigo-100 bg-white hover:bg-indigo-50 transition-colors cursor-pointer"
                     >
                       <Check size={14} /> Mark Read
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(item._id)}
-                    className="p-2 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    className="p-2 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
                     title="Delete Notification"
                   >
                     <Trash2 size={16} />

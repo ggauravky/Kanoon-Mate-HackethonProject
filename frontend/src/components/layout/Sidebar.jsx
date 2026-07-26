@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -18,11 +18,12 @@ import {
   FileCheck2,
   HeartHandshake,
   Bell,
+  Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 
-// ─── Nav Items ─────────────────────────────────────────────────────────────────
+// ─── Nav Items Configuration ───────────────────────────────────────────────────
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, to: '/dashboard', end: true },
   { id: 'documents', label: 'My Documents', icon: FileText, to: '/dashboard/documents' },
@@ -40,40 +41,7 @@ const bottomItems = [
   { id: 'profile', label: 'Profile', icon: UserCircle, to: '/dashboard/profile' },
 ]
 
-// ─── Sidebar Link ──────────────────────────────────────────────────────────────
-function SidebarLink({ item, collapsed }) {
-  return (
-    <NavLink
-      to={item.to}
-      end={item.end}
-      className={({ isActive }) =>
-        `sidebar-link ${isActive ? 'active' : ''} ${collapsed ? 'justify-center px-0' : ''}`
-      }
-      title={collapsed ? item.label : undefined}
-    >
-      {({ isActive }) => (
-        <>
-          <item.icon size={18} className={`shrink-0 ${isActive ? 'text-white' : ''}`} />
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden whitespace-nowrap"
-              >
-                {item.label}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </>
-      )}
-    </NavLink>
-  )
-}
-
-// ─── User Avatar ───────────────────────────────────────────────────────────────
+// ─── User Avatar Component ─────────────────────────────────────────────────────
 function UserAvatar({ user, size = 'md' }) {
   const initials = user?.name
     ?.split(' ')
@@ -82,18 +50,73 @@ function UserAvatar({ user, size = 'md' }) {
     .join('')
     .toUpperCase() ?? 'U'
 
-  const sizeClass = size === 'sm' ? 'h-7 w-7 text-xs' : 'h-9 w-9 text-sm'
+  const sizeClass = size === 'sm' ? 'h-8 w-8 text-xs' : 'h-9 w-9 text-xs font-extrabold'
 
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] font-semibold text-white ${sizeClass}`}
+      className={`flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-violet-600 text-white ring-2 ring-white/10 shadow-sm ${sizeClass}`}
     >
       {initials}
     </div>
   )
 }
 
-// ─── Sidebar Inner Content ─────────────────────────────────────────────────────
+// ─── Sidebar Link Item ────────────────────────────────────────────────────────
+function SidebarLink({ item, collapsed }) {
+  const location = useLocation()
+  const isActive = item.end
+    ? location.pathname === item.to
+    : location.pathname.startsWith(item.to)
+
+  return (
+    <NavLink
+      to={item.to}
+      end={item.end}
+      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 group ${
+        isActive
+          ? 'text-white font-bold'
+          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+      } ${collapsed ? 'justify-center px-0' : ''}`}
+      title={collapsed ? item.label : undefined}
+    >
+      {/* Active Pill Animation */}
+      {isActive && (
+        <motion.div
+          layoutId="sidebarActivePill"
+          className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-md shadow-blue-500/25"
+          transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+        />
+      )}
+
+      {/* Icon */}
+      <span className="relative z-10 flex items-center justify-center shrink-0">
+        <item.icon
+          size={18}
+          className={`transition-transform duration-200 ${
+            isActive ? 'text-white scale-105' : 'text-slate-400 group-hover:text-slate-100 group-hover:scale-105'
+          }`}
+        />
+      </span>
+
+      {/* Label */}
+      <AnimatePresence>
+        {!collapsed && (
+          <motion.span
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: 'auto' }}
+            exit={{ opacity: 0, width: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative z-10 overflow-hidden whitespace-nowrap"
+          >
+            {item.label}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </NavLink>
+  )
+}
+
+// ─── Sidebar Inner Layout Content ─────────────────────────────────────────────
 function SidebarContent({ collapsed, onClose }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -105,15 +128,17 @@ function SidebarContent({ collapsed, onClose }) {
   }
 
   return (
-    <div
-      className="flex h-full flex-col"
-      style={{ backgroundColor: 'var(--color-sidebar-bg)' }}
-    >
-      {/* Logo */}
-      <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${collapsed ? 'justify-center px-2' : ''}`}>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]">
-          <Scale size={16} className="text-white" />
+    <div className="flex h-full flex-col bg-slate-950 text-white select-none">
+      {/* ── Brand Logo Header ── */}
+      <div
+        className={`flex items-center gap-3 px-4 py-5 border-b border-slate-800/80 ${
+          collapsed ? 'justify-center px-2' : ''
+        }`}
+      >
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20">
+          <Scale size={18} />
         </div>
+
         <AnimatePresence>
           {!collapsed && (
             <motion.div
@@ -121,65 +146,78 @@ function SidebarContent({ collapsed, onClose }) {
               animate={{ opacity: 1, width: 'auto' }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden"
+              className="overflow-hidden min-w-0"
             >
-              <span className="text-white font-bold text-base whitespace-nowrap">LawAssist AI</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-white font-extrabold text-sm tracking-tight whitespace-nowrap">
+                  LawAssist AI
+                </span>
+                <span className="rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1.5 py-0.5 text-[9px] font-extrabold uppercase">
+                  PRO
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">
+                Legal AI Assistant
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Mobile close button */}
+        {/* Mobile Close Button */}
         {onClose && (
           <button
             onClick={onClose}
-            className="ml-auto text-[var(--color-sidebar-text)] hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+            className="ml-auto text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
           >
             <X size={18} />
           </button>
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      {/* ── Navigation Links List ── */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-none">
         {navItems.map((item) => (
           <SidebarLink key={item.id} item={item} collapsed={collapsed} />
         ))}
 
-        {/* Divider */}
-        <div className="my-3 h-px bg-white/10" />
+        {/* Subtle Section Divider */}
+        <div className="my-3 mx-2 h-px bg-slate-800/80" />
 
         {bottomItems.map((item) => (
           <SidebarLink key={item.id} item={item} collapsed={collapsed} />
         ))}
       </nav>
 
-      {/* User + Logout */}
-      <div className="border-t border-white/10 p-3 space-y-1">
-        {/* User row */}
+      {/* ── Footer: User Profile & Logout ── */}
+      <div className="border-t border-slate-800/80 p-3 space-y-2 bg-slate-950/60">
+        {/* User Card info */}
         {!collapsed && user && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center gap-2.5 px-2 py-2 rounded-lg mb-1"
+            className="flex items-center gap-3 p-2 rounded-xl bg-slate-900/80 border border-slate-800"
           >
             <UserAvatar user={user} />
-            <div className="overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">{user.name}</p>
-              <p className="text-xs text-[var(--color-sidebar-text)] truncate">{user.email}</p>
+            <div className="overflow-hidden min-w-0">
+              <p className="text-xs font-bold text-white truncate">{user.name}</p>
+              <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
             </div>
           </motion.div>
         )}
+
         {collapsed && user && (
-          <div className="flex justify-center mb-1">
+          <div className="flex justify-center py-1">
             <UserAvatar user={user} size="sm" />
           </div>
         )}
 
-        {/* Logout */}
+        {/* Logout Action */}
         <button
           onClick={handleLogout}
-          className={`sidebar-link w-full ${collapsed ? 'justify-center px-0' : ''} hover:!bg-red-500/20 hover:!text-red-400`}
-          title={collapsed ? 'Logout' : undefined}
+          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer ${
+            collapsed ? 'justify-center px-0' : ''
+          }`}
+          title={collapsed ? 'Logout Account' : undefined}
         >
           <LogOut size={17} className="shrink-0" />
           <AnimatePresence>
@@ -191,7 +229,7 @@ function SidebarContent({ collapsed, onClose }) {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden whitespace-nowrap"
               >
-                Logout
+                Logout Account
               </motion.span>
             )}
           </AnimatePresence>
@@ -201,7 +239,7 @@ function SidebarContent({ collapsed, onClose }) {
   )
 }
 
-// ─── Main Sidebar Export ───────────────────────────────────────────────────────
+// ─── Main Sidebar Component Export ─────────────────────────────────────────────
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   useEffect(() => {
     if (mobileOpen) onMobileClose?.()
@@ -209,18 +247,18 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Persistent Sidebar */}
       <motion.aside
-        animate={{ width: collapsed ? 68 : 240 }}
-        transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="hidden lg:flex flex-col relative shrink-0 overflow-hidden"
-        style={{ boxShadow: 'var(--shadow-sidebar)' }}
+        animate={{ width: collapsed ? 72 : 240 }}
+        transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+        className="hidden lg:flex flex-col relative shrink-0 overflow-hidden z-30 border-r border-slate-800"
       >
         <SidebarContent collapsed={collapsed} />
 
+        {/* Collapse Toggle Button on Border */}
         <button
           onClick={onToggle}
-          className="absolute -right-3 top-[72px] z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-[var(--color-border)] shadow-md text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all duration-150"
+          className="absolute -right-3 top-6 z-40 flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-indigo-500 shadow-md transition-all cursor-pointer"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
@@ -237,7 +275,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+              className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs lg:hidden"
               onClick={onMobileClose}
             />
 
@@ -247,8 +285,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
               animate={{ x: 0 }}
               exit={{ x: -260 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed left-0 top-0 z-50 h-full w-[240px] lg:hidden"
-              style={{ boxShadow: 'var(--shadow-sidebar)' }}
+              className="fixed left-0 top-0 z-50 h-full w-[240px] lg:hidden border-r border-slate-800 shadow-2xl"
             >
               <SidebarContent collapsed={false} onClose={onMobileClose} />
             </motion.aside>

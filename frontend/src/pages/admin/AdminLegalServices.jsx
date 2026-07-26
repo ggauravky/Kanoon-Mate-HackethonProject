@@ -1,23 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { HeartHandshake, Plus, Trash2, Edit3, ShieldCheck } from 'lucide-react'
+import { Trash2, ShieldCheck } from 'lucide-react'
+import { legalServicesAPI } from '../../services/api'
 import toast from 'react-hot-toast'
 
-const MOCK_SERVICES = [
-  { id: 's_1', name: 'Advocate Legal Consultation', category: 'Directory', status: 'Active' },
-  { id: 's_2', name: 'NALSA Legal Aid Finder', category: 'Free Aid', status: 'Active' },
-  { id: 's_3', name: 'e-Daakhil Consumer Complaint Step-by-Step', category: 'Guide', status: 'Active' },
-  { id: 's_4', name: 'Cyber Crime 1930 Helpline Assistant', category: 'Emergency', status: 'Active' },
-]
-
 export default function AdminLegalServices() {
-  const [services, setServices] = useState(MOCK_SERVICES)
+  const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const handleDelete = (id) => {
-    if (!window.confirm('Delete service entry?')) return
-    setServices((prev) => prev.filter((s) => s.id !== id))
-    toast.success('Service entry removed.')
+  const fetchServices = async () => {
+    setLoading(true)
+    try {
+      const res = await legalServicesAPI.getServices()
+      const list = res.data?.data?.services || []
+      setServices(list)
+    } catch (err) {
+      toast.error('Failed to load legal service entries.')
+      setServices([])
+    } finally {
+      setLoading(false)
+    }
   }
+
+  useEffect(() => {
+    fetchServices()
+  }, [])
 
   return (
     <motion.div
@@ -28,41 +35,53 @@ export default function AdminLegalServices() {
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">Legal Help Hub Directory Management</h1>
-          <p className="text-xs text-slate-500 mt-1">Manage advocate directory entries, legal aid centers, and e-Daakhil guides.</p>
+          <h1 className="text-2xl font-extrabold text-slate-900">Legal Help Hub Directory Oversight</h1>
+          <p className="text-xs text-slate-500 mt-1">Monitor NALSA centers, DLSAs, emergency helplines, and advocate listings.</p>
         </div>
-        <button onClick={() => toast.success('Add service modal (Demo)')} className="btn-primary text-xs gap-1">
-          <Plus size={14} /> Add Service Entry
-        </button>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 uppercase font-semibold">
-                <th className="p-3">Service Name</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Status</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-              {services.map((s) => (
-                <tr key={s.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-3 font-bold text-indigo-900">{s.name}</td>
-                  <td className="p-3">{s.category}</td>
-                  <td className="p-3 font-bold text-emerald-600">{s.status}</td>
-                  <td className="p-3 text-right">
-                    <button onClick={() => handleDelete(s.id)} className="p-1.5 text-slate-400 hover:text-red-600">
-                      <Trash2 size={15} />
-                    </button>
-                  </td>
+        {loading ? (
+          <div className="flex h-48 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+          </div>
+        ) : services.length === 0 ? (
+          <div className="p-8 text-center text-xs text-slate-500 font-medium">
+            No legal service entries found.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 uppercase font-semibold">
+                  <th className="p-3">Resource Name</th>
+                  <th className="p-3">Type</th>
+                  <th className="p-3">Category</th>
+                  <th className="p-3">Location</th>
+                  <th className="p-3">Verification</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                {services.map((s) => (
+                  <tr key={s._id || s.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3 font-bold text-indigo-900">{s.name}</td>
+                    <td className="p-3">{s.type}</td>
+                    <td className="p-3 font-bold text-indigo-600">{s.category}</td>
+                    <td className="p-3">{s.city}, {s.state}</td>
+                    <td className="p-3">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        s.verified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        <ShieldCheck size={12} />
+                        {s.verified ? 'Verified' : 'Unverified'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </motion.div>
   )

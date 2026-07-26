@@ -53,28 +53,17 @@ export default function UploadCard() {
         }
       })
 
-      const docData = response.data?.data?.document || {
-        _id: 'doc_' + Date.now(),
-        title: title || file.name,
-        originalFileName: file.name,
-        fileSize: file.size,
+      const docData = response.data?.data?.document
+      if (!docData) {
+        throw new Error('Upload succeeded but server did not return document payload.')
       }
 
       setUploadedDoc(docData)
       toast.success('Document uploaded successfully!')
     } catch (err) {
-      // Fallback for standalone frontend testing if backend is offline
-      console.warn('Backend upload fallback active:', err.message)
-      setTimeout(() => {
-        const mockDoc = {
-          _id: 'doc_demo_' + Date.now(),
-          title: title || file.name,
-          originalFileName: file.name,
-          fileSize: file.size,
-        }
-        setUploadedDoc(mockDoc)
-        toast.success('Document uploaded (Demo Mode)!')
-      }, 1000)
+      const errorMsg = err.message || 'Failed to upload document to server.'
+      setError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setUploading(false)
     }

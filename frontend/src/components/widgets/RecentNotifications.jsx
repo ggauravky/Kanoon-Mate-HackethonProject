@@ -1,47 +1,51 @@
 import { useState, useEffect } from 'react'
-import { Bell, Check, Sparkles, Calendar, FileText, ArrowRight } from 'lucide-react'
+import { Bell, AlertCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { notificationsAPI } from '../../services/api'
-
-const MOCK_WIDGET_NOTIFS = [
-  {
-    _id: 'n_1',
-    title: '⚠️ Consumer Forum Reply Notice Due in 3 Days',
-    type: 'Deadline Reminder',
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    isRead: false,
-  },
-  {
-    _id: 'n_2',
-    title: 'AI Analysis Complete for Rent Agreement',
-    type: 'AI Analysis Ready',
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    isRead: false,
-  },
-  {
-    _id: 'n_3',
-    title: 'PDF Executive Legal Report Downloadable',
-    type: 'Report Generated',
-    createdAt: new Date(Date.now() - 14400000).toISOString(),
-    isRead: true,
-  },
-]
 
 export default function RecentNotifications({ limit = 3 }) {
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true
     notificationsAPI
       .getNotifications()
       .then((res) => {
         const fetched = res.data?.data?.notifications || []
-        setNotifications(fetched.length > 0 ? fetched : MOCK_WIDGET_NOTIFS)
+        if (isMounted) {
+          setNotifications(fetched)
+        }
       })
       .catch(() => {
-        setNotifications(MOCK_WIDGET_NOTIFS)
+        if (isMounted) setNotifications([])
       })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [])
+
+  if (loading) {
+    return (
+      <div className="flex h-20 items-center justify-center text-xs text-slate-500 font-medium">
+        Loading notifications...
+      </div>
+    )
+  }
+
+  if (notifications.length === 0) {
+    return (
+      <div className="p-4 text-center space-y-1">
+        <Bell size={20} className="mx-auto text-slate-300" />
+        <p className="text-xs font-semibold text-slate-600">No new notifications</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">

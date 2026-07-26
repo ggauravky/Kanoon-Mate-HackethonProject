@@ -1,6 +1,7 @@
 import Document from '../models/document.model.js'
 import fs from 'fs/promises'
 import path from 'path'
+import { createNotificationService } from './notification.service.js'
 
 /**
  * Service: Create document metadata entry in database
@@ -24,6 +25,20 @@ export const createDocumentService = async ({ file, userId, title }) => {
     uploadedBy: userId,
     uploadStatus: 'uploaded',
   })
+
+  // Auto-generate notification in MongoDB
+  try {
+    await createNotificationService({
+      userId,
+      title: 'Document Uploaded Successfully',
+      message: `"${documentTitle}" has been uploaded and stored in your vault.`,
+      type: 'Document Uploaded',
+      priority: 'Low',
+      relatedDocument: newDoc._id,
+    })
+  } catch (notifErr) {
+    console.warn('Failed to auto-create upload notification:', notifErr.message)
+  }
 
   return newDoc
 }

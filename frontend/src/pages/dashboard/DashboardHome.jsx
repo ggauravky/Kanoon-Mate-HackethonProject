@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, FileText, Sparkles, CalendarClock, FileCheck2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { mockStats } from '../../data/mockData'
+import { documentsAPI, remindersAPI, reportsAPI } from '../../services/api'
 import StatCard from '../../components/common/StatCard'
 import SectionCard from '../../components/common/SectionCard'
 import QuickActions from '../../components/widgets/QuickActions'
@@ -15,9 +16,48 @@ export default function DashboardHome() {
   const navigate = useNavigate()
   const firstName = user?.name?.split(' ')[0] ?? 'there'
 
+  const [stats, setStats] = useState([
+    { id: 'docs', label: 'Total Documents', value: '0', change: 'Uploaded', icon: FileText, color: 'blue' },
+    { id: 'analyzed', label: 'AI Analyzed', value: '0', change: 'Processed', icon: Sparkles, color: 'green' },
+    { id: 'deadlines', label: 'Active Deadlines', value: '0', change: 'Upcoming', icon: CalendarClock, color: 'yellow' },
+    { id: 'reports', label: 'PDF Reports', value: '0', change: 'Generated', icon: FileCheck2, color: 'purple' },
+  ])
+
+  useEffect(() => {
+    let isMounted = true
+
+    // Fetch live statistics from MongoDB APIs
+    Promise.allSettled([
+      documentsAPI.getDocuments(),
+      remindersAPI.getReminders(),
+      reportsAPI.getReports(),
+    ]).then(([docsRes, remindersRes, reportsRes]) => {
+      if (!isMounted) return
+
+      const docsList = docsRes.status === 'fulfilled' ? docsRes.value.data?.data?.documents || [] : []
+      const remindersList = remindersRes.status === 'fulfilled' ? remindersRes.value.data?.data?.reminders || [] : []
+      const reportsList = reportsRes.status === 'fulfilled' ? reportsRes.value.data?.data?.reports || [] : []
+
+      const totalDocs = docsList.length
+      const analyzedDocs = docsList.filter((d) => d.analysisStatus === 'AI Completed' || (d.analysis && d.analysis.summary)).length
+      const activeDeadlines = remindersList.filter((r) => r.status !== 'completed').length
+      const totalReports = reportsList.length
+
+      setStats([
+        { id: 'docs', label: 'Total Documents', value: totalDocs.toString(), change: 'Uploaded to Vault', icon: FileText, color: 'blue' },
+        { id: 'analyzed', label: 'AI Analyzed', value: analyzedDocs.toString(), change: 'Legal Audits', icon: Sparkles, color: 'green' },
+        { id: 'deadlines', label: 'Active Deadlines', value: activeDeadlines.toString(), change: 'Reminders Active', icon: CalendarClock, color: 'yellow' },
+        { id: 'reports', label: 'PDF Reports', value: totalReports.toString(), change: 'Generated Reports', icon: FileCheck2, color: 'purple' },
+      ])
+    })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-
       {/* ── Welcome Card ─────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -46,7 +86,7 @@ export default function DashboardHome() {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/dashboard/upload')}
-            className="flex items-center gap-2 self-start sm:self-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-primary)] shadow-lg hover:shadow-xl transition-shadow shrink-0"
+            className="flex items-center gap-2 self-start sm:self-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-primary)] shadow-lg hover:shadow-xl transition-shadow shrink-0 cursor-pointer"
             id="welcome-upload-btn"
           >
             Upload Document
@@ -60,9 +100,9 @@ export default function DashboardHome() {
         <QuickActions />
       </SectionCard>
 
-      {/* ── Stats ─────────────────────────────────────────────────────────── */}
+      {/* ── Dynamic Live Stats ────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {mockStats.map((stat, i) => (
+        {stats.map((stat, i) => (
           <StatCard key={stat.id} {...stat} index={i} />
         ))}
       </div>
@@ -74,7 +114,7 @@ export default function DashboardHome() {
         action={
           <button
             onClick={() => navigate('/dashboard/documents')}
-            className="btn-ghost text-xs gap-1 text-[var(--color-primary)]"
+            className="btn-ghost text-xs gap-1 text-[var(--color-primary)] cursor-pointer"
             id="view-all-docs-btn"
           >
             View All <ArrowRight size={13} />
@@ -86,14 +126,13 @@ export default function DashboardHome() {
 
       {/* ── Bottom Row: Deadlines + Tips ──────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-
         {/* Deadlines */}
         <SectionCard
           title="Upcoming Deadlines"
           action={
             <button
               onClick={() => navigate('/dashboard/deadlines')}
-              className="btn-ghost text-xs gap-1 text-[var(--color-primary)]"
+              className="btn-ghost text-xs gap-1 text-[var(--color-primary)] cursor-pointer"
               id="view-all-deadlines-btn"
             >
               View All <ArrowRight size={13} />

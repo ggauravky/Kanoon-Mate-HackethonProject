@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, ShieldCheck, User, Trash2, CheckCircle2, XCircle, UserPlus, Filter } from 'lucide-react'
+import { Search, Trash2, CheckCircle2, XCircle } from 'lucide-react'
 import { adminAPI } from '../../services/api'
 import toast from 'react-hot-toast'
-
-const MOCK_ADMIN_USERS = [
-  { _id: 'u_1', name: 'Gaurav Sharma', email: 'gaurav@example.com', role: 'admin', isVerified: true, createdAt: '2025-01-15' },
-  { _id: 'u_2', name: 'Rajesh Kumar', email: 'rajesh.k@example.com', role: 'citizen', isVerified: true, createdAt: '2025-02-10' },
-  { _id: 'u_3', name: 'Priya Verma', email: 'priya.advocate@example.com', role: 'citizen', isVerified: false, createdAt: '2025-03-04' },
-  { _id: 'u_4', name: 'Amit Patel', email: 'amit.patel@example.com', role: 'citizen', isVerified: true, createdAt: '2025-04-12' },
-]
 
 export default function Users() {
   const [users, setUsers] = useState([])
@@ -17,16 +10,18 @@ export default function Users() {
   const [search, setSearch] = useState('')
   const [selectedRole, setSelectedRole] = useState('All')
 
-  const fetchUsers = () => {
+  const fetchUsers = async () => {
     setLoading(true)
-    adminAPI
-      .getUsers({ search, role: selectedRole === 'All' ? undefined : selectedRole })
-      .then((res) => {
-        const list = res.data?.data?.users || []
-        setUsers(list.length > 0 ? list : MOCK_ADMIN_USERS)
-      })
-      .catch(() => setUsers(MOCK_ADMIN_USERS))
-      .finally(() => setLoading(false))
+    try {
+      const res = await adminAPI.getUsers({ search, role: selectedRole === 'All' ? undefined : selectedRole })
+      const list = res.data?.data?.users || []
+      setUsers(list)
+    } catch (err) {
+      toast.error('Failed to load user accounts from server.')
+      setUsers([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -38,9 +33,8 @@ export default function Users() {
       await adminAPI.updateUser(userId, { role: newRole })
       setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, role: newRole } : u)))
       toast.success(`Role updated to ${newRole}`)
-    } catch {
-      setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, role: newRole } : u)))
-      toast.success(`Role updated to ${newRole} (Demo Mode)`)
+    } catch (err) {
+      toast.error(err.message || 'Failed to update user role.')
     }
   }
 
@@ -50,15 +44,14 @@ export default function Users() {
     try {
       await adminAPI.deleteUser(userId)
       setUsers((prev) => prev.filter((u) => u._id !== userId))
-      toast.success('User account deleted.')
-    } catch {
-      setUsers((prev) => prev.filter((u) => u._id !== userId))
-      toast.success('User account deleted.')
+      toast.success('User account deleted successfully.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete user account.')
     }
   }
 
   const filteredUsers = users.filter((u) => {
-    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
+    const matchesSearch = (u.name || '').toLowerCase().includes(search.toLowerCase()) || (u.email || '').toLowerCase().includes(search.toLowerCase())
     const matchesRole = selectedRole === 'All' || u.role === selectedRole
     return matchesSearch && matchesRole
   })
@@ -74,7 +67,7 @@ export default function Users() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">User Management</h1>
           <p className="text-xs text-slate-500 mt-1">
-            Manage user roles, verification statuses, and account access permissions.
+            Manage registered user roles, verification statuses, and account access permissions.
           </p>
         </div>
       </div>
@@ -97,7 +90,7 @@ export default function Users() {
             <button
               key={role}
               onClick={() => setSelectedRole(role)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                 selectedRole === role
                   ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
                   : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -114,6 +107,10 @@ export default function Users() {
         {loading ? (
           <div className="flex h-48 items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="p-8 text-center text-xs text-slate-500 font-medium">
+            No registered users found.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -133,7 +130,7 @@ export default function Users() {
                     <td className="p-3">
                       <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-xs">
-                          {u.name[0]}
+                          {u.name ? u.name[0].toUpperCase() : 'U'}
                         </div>
                         <div>
                           <p className="font-bold text-slate-900">{u.name}</p>
@@ -145,7 +142,7 @@ export default function Users() {
                       <select
                         value={u.role}
                         onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-800 focus:bg-white outline-none"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-800 focus:bg-white outline-none cursor-pointer"
                       >
                         <option value="citizen">Citizen</option>
                         <option value="admin">Admin</option>
@@ -160,11 +157,13 @@ export default function Users() {
                         {u.isVerified ? 'Verified' : 'Pending'}
                       </span>
                     </td>
-                    <td className="p-3 font-mono">{u.createdAt}</td>
+                    <td className="p-3 font-mono">
+                      {new Date(u.createdAt || Date.now()).toLocaleDateString('en-IN')}
+                    </td>
                     <td className="p-3 text-right">
                       <button
                         onClick={() => handleDeleteUser(u._id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
                         title="Delete User"
                       >
                         <Trash2 size={15} />

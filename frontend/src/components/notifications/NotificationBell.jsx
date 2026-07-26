@@ -5,36 +5,6 @@ import { useNavigate } from 'react-router-dom'
 import { notificationsAPI } from '../../services/api'
 import toast from 'react-hot-toast'
 
-const MOCK_NOTIFICATIONS = [
-  {
-    _id: 'notif_001',
-    title: '⚠️ Urgent: 3 Days Left for Reply Notice',
-    message: 'Consumer Forum reply is due in 3 days. Complete filing.',
-    type: 'Deadline Reminder',
-    priority: 'High',
-    isRead: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    _id: 'notif_002',
-    title: 'AI Analysis Complete for Rent Agreement',
-    message: 'OCR & legal clause extraction completed with 0 high risk terms.',
-    type: 'AI Analysis Ready',
-    priority: 'Medium',
-    isRead: false,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    _id: 'notif_003',
-    title: 'Document Uploaded Successfully',
-    message: 'Property Sale Deed scan stored in secure DPDP vault.',
-    type: 'Document Uploaded',
-    priority: 'Low',
-    isRead: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-]
-
 export default function NotificationBell() {
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
@@ -49,12 +19,12 @@ export default function NotificationBell() {
       .then((res) => {
         const list = res.data?.data?.notifications || []
         const count = res.data?.data?.unreadCount ?? list.filter((n) => !n.isRead).length
-        setNotifications(list.length > 0 ? list : MOCK_NOTIFICATIONS)
-        setUnreadCount(list.length > 0 ? count : 2)
+        setNotifications(list)
+        setUnreadCount(count)
       })
       .catch(() => {
-        setNotifications(MOCK_NOTIFICATIONS)
-        setUnreadCount(2)
+        setNotifications([])
+        setUnreadCount(0)
       })
       .finally(() => setLoading(false))
   }
@@ -82,11 +52,8 @@ export default function NotificationBell() {
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       )
       setUnreadCount((prev) => Math.max(0, prev - 1))
-    } catch {
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-      )
-      setUnreadCount((prev) => Math.max(0, prev - 1))
+    } catch (err) {
+      toast.error(err.message || 'Failed to mark notification as read.')
     }
   }
 
@@ -96,10 +63,8 @@ export default function NotificationBell() {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
       setUnreadCount(0)
       toast.success('All notifications marked as read.')
-    } catch {
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-      setUnreadCount(0)
-      toast.success('All notifications marked as read.')
+    } catch (err) {
+      toast.error(err.message || 'Failed to mark all as read.')
     }
   }
 

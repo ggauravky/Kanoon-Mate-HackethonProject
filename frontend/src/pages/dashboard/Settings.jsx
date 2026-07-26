@@ -56,7 +56,7 @@ export default function Settings() {
           <Eye size={16} className="text-[var(--color-primary)]" />
           <h2 className="text-sm font-semibold text-[var(--color-text)]">Privacy</h2>
         </div>
-        <SettingsRow label="Share Usage Analytics" description="Help improve LawAssist AI">
+        <SettingsRow label="Share Usage Analytics" description="Help improve Kanoon-Mate">
           <Toggle />
         </SettingsRow>
         <SettingsRow label="Document Retention" description="Auto-delete documents after 1 year">

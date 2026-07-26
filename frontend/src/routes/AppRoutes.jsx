@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from '../components/layout/AppLayout'
 import DashboardLayout from '../components/layout/DashboardLayout'
 import ProtectedRoute from './ProtectedRoute'
@@ -6,6 +6,7 @@ import HomePage from '../pages/HomePage'
 import DashboardHome from '../pages/dashboard/DashboardHome'
 import Documents from '../pages/dashboard/Documents'
 import Upload from '../pages/dashboard/Upload'
+import DocumentDetailsPage from '../pages/dashboard/DocumentDetailsPage'
 import History from '../pages/dashboard/History'
 import Deadlines from '../pages/dashboard/Deadlines'
 import AIChat from '../pages/dashboard/AIChat'
@@ -33,7 +34,14 @@ function AppRoutes() {
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+          {/* Document Details View Route */}
+          <Route path="/document/:id" element={<DashboardLayout />}>
+            <Route index element={<DocumentDetailsPage />} />
+          </Route>
         </Route>
+
+        {/* Catch-all redirect to Home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )

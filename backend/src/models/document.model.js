@@ -1,0 +1,58 @@
+import mongoose from 'mongoose'
+
+const documentSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, 'Document title is required'],
+      trim: true,
+      maxlength: [200, 'Title cannot exceed 200 characters'],
+    },
+    originalFileName: {
+      type: String,
+      required: [true, 'Original file name is required'],
+      trim: true,
+    },
+    storedFileName: {
+      type: String,
+      required: [true, 'Stored file name is required'],
+      unique: true,
+      trim: true,
+    },
+    mimeType: {
+      type: String,
+      required: [true, 'MIME type is required'],
+      enum: {
+        values: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'],
+        message: 'Invalid file format. Only PDF, JPG, JPEG, and PNG files are allowed.',
+      },
+    },
+    fileSize: {
+      type: Number,
+      required: [true, 'File size is required'],
+      max: [20 * 1024 * 1024, 'File size cannot exceed 20 MB'],
+    },
+    filePath: {
+      type: String,
+      required: [true, 'File path is required'],
+    },
+    uploadedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'User reference is required'],
+      index: true,
+    },
+    uploadStatus: {
+      type: String,
+      enum: ['uploaded', 'processing', 'analyzed', 'failed'],
+      default: 'uploaded',
+    },
+  },
+  {
+    timestamps: true,
+  }
+)
+
+const Document = mongoose.model('Document', documentSchema)
+
+export default Document

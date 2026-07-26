@@ -10,6 +10,7 @@ import DocumentDetailsPage from '../pages/dashboard/DocumentDetailsPage'
 import DocumentAnalysis from '../pages/dashboard/DocumentAnalysis'
 import History from '../pages/dashboard/History'
 import Deadlines from '../pages/dashboard/Deadlines'
+import Reports from '../pages/dashboard/Reports'
 import AIChat from '../pages/dashboard/AIChat'
 import Profile from '../pages/dashboard/Profile'
 import Settings from '../pages/dashboard/Settings'
@@ -30,6 +31,7 @@ function AppRoutes() {
             <Route path="documents" element={<Documents />} />
             <Route path="upload" element={<Upload />} />
             <Route path="analysis/:id" element={<DocumentAnalysis />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="chat" element={<AIChat />} />
             <Route path="deadlines" element={<Deadlines />} />
             <Route path="history" element={<History />} />

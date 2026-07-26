@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Eye, FileText } from 'lucide-react'
+import { Eye, FileText, Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { mockDocuments } from '../../data/mockData'
 
 const statusConfig = {
@@ -23,6 +24,7 @@ function formatDate(dateStr) {
 }
 
 export default function RecentDocuments({ limit = 5 }) {
+  const navigate = useNavigate()
   const docs = mockDocuments.slice(0, limit)
 
   return (
@@ -50,7 +52,8 @@ export default function RecentDocuments({ limit = 5 }) {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
-                className="group border-b border-[var(--color-border-light)] last:border-0 hover:bg-[var(--color-surface-alt)] transition-colors"
+                className="group border-b border-[var(--color-border-light)] last:border-0 hover:bg-[var(--color-surface-alt)] transition-colors cursor-pointer"
+                onClick={() => navigate(`/dashboard/analysis/${doc.id}`)}
               >
                 {/* Name */}
                 <td className="px-4 py-3.5 max-w-[220px]">
@@ -79,9 +82,15 @@ export default function RecentDocuments({ limit = 5 }) {
 
                 {/* Action */}
                 <td className="px-4 py-3.5">
-                  <button className="btn-ghost py-1.5 px-2.5 text-xs gap-1.5 opacity-70 group-hover:opacity-100">
-                    <Eye size={13} />
-                    View
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate(`/dashboard/analysis/${doc.id}`)
+                    }}
+                    className="btn-primary py-1.5 px-2.5 text-xs gap-1.5 opacity-90 group-hover:opacity-100"
+                  >
+                    <Sparkles size={13} />
+                    Analyse
                   </button>
                 </td>
               </motion.tr>

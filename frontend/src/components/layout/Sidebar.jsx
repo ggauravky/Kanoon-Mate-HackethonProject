@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -196,25 +196,12 @@ function SidebarContent({ collapsed, onClose }) {
 }
 
 // ─── Main Sidebar Export ───────────────────────────────────────────────────────
-/**
- * Sidebar
- * - Desktop: fixed, collapsible
- * - Mobile: hidden by default, shown as a drawer overlay
- *
- * Props:
- *  collapsed    {boolean}  — desktop collapse state
- *  onToggle     {fn}       — toggle desktop collapse
- *  mobileOpen   {boolean}  — mobile drawer open state
- *  onMobileClose {fn}      — close mobile drawer
- */
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   // Close drawer on route change (mobile)
   useEffect(() => {
     if (mobileOpen) onMobileClose?.()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const desktopWidth = collapsed ? 'w-[68px]' : 'w-[240px]'
 
   return (
     <>

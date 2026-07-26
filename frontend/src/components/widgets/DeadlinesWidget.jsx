@@ -1,72 +1,106 @@
-import { motion } from 'framer-motion'
-import { CalendarClock, AlertTriangle, Clock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { CalendarClock, AlertCircle, CheckCircle2, ChevronRight, Clock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { remindersAPI } from '../../services/api'
+import { calculateDeadlineMetrics } from '../../utils/dateExtractor'
 import { mockDeadlines } from '../../data/mockData'
 
-const statusConfig = {
-  Urgent: {
-    badgeCls: 'badge badge-red',
-    icon: AlertTriangle,
-    iconCls: 'text-[var(--color-danger)]',
-    bg: 'bg-[var(--color-danger-50)]',
-  },
-  Upcoming: {
-    badgeCls: 'badge badge-yellow',
-    icon: Clock,
-    iconCls: 'text-[var(--color-warning)]',
-    bg: 'bg-[var(--color-warning-50)]',
-  },
-}
-
-function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-IN', {
-    day: '2-digit', month: 'short', year: 'numeric',
-  })
-}
-
 export default function DeadlinesWidget({ limit = 3 }) {
-  const items = mockDeadlines.slice(0, limit)
+  const navigate = useNavigate()
+  const [reminders, setReminders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+    remindersAPI
+      .getReminders()
+      .then((res) => {
+        const fetched = res.data?.data?.reminders || []
+        if (isMounted) {
+          setReminders(fetched.length > 0 ? fetched : mockDeadlines)
+        }
+      })
+      .catch(() => {
+        if (isMounted) setReminders(mockDeadlines)
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const displayList = reminders.slice(0, limit)
+
+  const getUrgencyBadge = (dueDateStr) => {
+    const { daysRemaining, urgencyCode } = calculateDeadlineMetrics(dueDateStr)
+
+    if (urgencyCode === 'expired') {
+      return <span className="badge badge-gray border border-slate-300">Expired</span>
+    }
+    if (urgencyCode === 'urgent') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 text-red-800 border border-red-200 px-2.5 py-0.5 text-[10px] font-bold">
+          🔴 {daysRemaining} days left (Urgent)
+        </span>
+      )
+    }
+    if (urgencyCode === 'warning') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold">
+          🟡 {daysRemaining} days left
+        </span>
+      )
+    }
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold">
+        🟢 {daysRemaining} days left
+      </span>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-24 items-center justify-center">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col gap-3">
-      {items.map((dl, i) => {
-        const cfg = statusConfig[dl.status] ?? statusConfig.Upcoming
-        const Icon = cfg.icon
+    <div className="space-y-3">
+      {displayList.map((item) => {
+        const id = item._id || item.id
+        const title = item.title
+        const dueDate = item.dueDate || item.dueDateStr
+
         return (
-          <motion.div
-            key={dl.id}
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.08 }}
-            className="flex items-start gap-3 p-3 rounded-xl border border-[var(--color-border-light)] hover:bg-[var(--color-surface-alt)] transition-colors"
+          <div
+            key={id}
+            onClick={() => navigate('/dashboard/deadlines')}
+            className="group flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 hover:bg-white hover:border-indigo-400 hover:shadow-xs transition-all cursor-pointer"
           >
-            {/* Icon */}
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${cfg.bg}`}>
-              <Icon size={16} className={cfg.iconCls} />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
+                <CalendarClock size={16} />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                  {title}
+                </h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1 font-mono">
+                  <Clock size={11} /> {new Date(dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
+              </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <p className="text-sm font-semibold text-[var(--color-text)] truncate">{dl.title}</p>
-                <span className={cfg.badgeCls}>{dl.status}</span>
-              </div>
-              <div className="mt-1 flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
-                <span className="flex items-center gap-1">
-                  <CalendarClock size={11} />
-                  {formatDate(dl.dueDate)}
-                </span>
-                <span
-                  className={`font-semibold ${
-                    dl.daysRemaining <= 5
-                      ? 'text-[var(--color-danger)]'
-                      : 'text-[var(--color-text-secondary)]'
-                  }`}
-                >
-                  {dl.daysRemaining}d left
-                </span>
-              </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {getUrgencyBadge(dueDate)}
+              <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
             </div>
-          </motion.div>
+          </div>
         )
       })}
     </div>

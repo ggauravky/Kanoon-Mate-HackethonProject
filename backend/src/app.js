@@ -6,6 +6,7 @@ import { ApiResponse } from './utils/apiResponse.js'
 import documentRoutes from './routes/document.routes.js'
 import ocrRoutes from './routes/ocr.routes.js'
 import analysisRoutes from './routes/analysis.routes.js'
+import reminderRoutes from './routes/reminder.routes.js'
 
 const app = express()
 
@@ -34,10 +35,11 @@ app.get('/api/v1/health', (req, res) => {
   })
 })
 
-// Document System Routes
+// Document & Reminder System Routes
 app.use('/api/v1/documents', documentRoutes)
 app.use('/api/v1/documents', ocrRoutes)
 app.use('/api/v1/documents', analysisRoutes)
+app.use('/api/v1/reminders', reminderRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {

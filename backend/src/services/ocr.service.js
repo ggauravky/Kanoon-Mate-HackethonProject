@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 import { createWorker } from 'tesseract.js';
 import { cleanText, getTextStats } from '../utils/textCleaner.js';
 
@@ -31,8 +31,14 @@ export const extractTextFromDocument = async (relativeOrAbsolutePath, mimeType) 
   try {
     if (mimeType === 'application/pdf') {
       const fileBuffer = await fs.readFile(absolutePath);
-      const pdfData = await pdfParse(fileBuffer);
-      rawExtractedText = pdfData.text || '';
+      const parser = new PDFParse({ data: fileBuffer });
+
+      try {
+        const pdfData = await parser.getText();
+        rawExtractedText = pdfData.text || '';
+      } finally {
+        await parser.destroy();
+      }
     } else if (['image/png', 'image/jpeg', 'image/jpg'].includes(mimeType)) {
       const worker = await createWorker('eng');
       const { data } = await worker.recognize(absolutePath);

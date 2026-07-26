@@ -12,7 +12,7 @@ const API = axios.create({
 // Request interceptor — attach token if stored in localStorage
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('kanoon_mate_token')
+    const token = localStorage.getItem('kanoon_mate_token') || localStorage.getItem('lawassist_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -53,9 +53,26 @@ export const documentsAPI = {
   getDocuments: () => API.get('/documents'),
   getDocumentById: (id) => API.get(`/documents/${id}`),
   deleteDocument: (id) => API.delete(`/documents/${id}`),
-  extractText: (id) => API.post(`/documents/${id}/extract-text`),
-  analyzeDocument: (id) => API.post(`/documents/${id}/analyze`),
-  getAnalysis: (id) => API.get(`/documents/${id}/analysis`),
+}
+
+// ─── OCR & AI Analysis API Endpoints ──────────────────────────────────────────
+export const ocrAPI = {
+  processOCR: (documentId) => API.post(`/documents/${documentId}/ocr`),
+  getOCRResult: (documentId) => API.get(`/documents/${documentId}/ocr`),
+}
+
+export const analysisAPI = {
+  analyzeDocument: (documentId) => API.post(`/documents/${documentId}/analyze`),
+  getAnalysisResult: (documentId) => API.get(`/documents/${documentId}/analysis`),
+}
+
+// ─── Deadline & Reminder API Endpoints ────────────────────────────────────────
+export const remindersAPI = {
+  getReminders: (params) => API.get('/reminders', { params }),
+  getReminderById: (id) => API.get(`/reminders/${id}`),
+  createReminder: (reminderData) => API.post('/reminders', reminderData),
+  updateReminder: (id, updateData) => API.patch(`/reminders/${id}`, updateData),
+  deleteReminder: (id) => API.delete(`/reminders/${id}`),
 }
 
 export default API

@@ -51,7 +51,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET || 'kanoon_mate_cookie_secret_202
 app.use('/uploads', express.static(path.resolve('uploads')))
 
 // Health check route
-app.get('/api/v1/health', (req, res) => {
+app.get(['/api/v1/health', '/api/health'], (req, res) => {
   return res.status(200).json({
     success: true,
     message: 'Kanoon-Mate API is operational',
@@ -59,18 +59,39 @@ app.get('/api/v1/health', (req, res) => {
   })
 })
 
-// System Routes
+// System Routes (Support both /api/v1 and /api prefixes)
 app.use('/api/v1/auth', authRoutes)
+app.use('/api/auth', authRoutes)
+
 app.use('/api/v1/documents', documentRoutes)
+app.use('/api/documents', documentRoutes)
+
 app.use('/api/v1/documents', ocrRoutes)
+app.use('/api/documents', ocrRoutes)
+
 app.use('/api/v1/documents', analysisRoutes)
+app.use('/api/documents', analysisRoutes)
+
 app.use('/api/v1/reminders', reminderRoutes)
+app.use('/api/reminders', reminderRoutes)
+
 app.use('/api/v1/reports', reportRoutes)
+app.use('/api/reports', reportRoutes)
+
 app.use('/api/v1/legal-services', legalServiceRoutes)
+app.use('/api/legal-services', legalServiceRoutes)
+
 app.use('/api/v1/notifications', notificationRoutes)
+app.use('/api/notifications', notificationRoutes)
+
 app.use('/api/v1/admin', adminRoutes)
+app.use('/api/admin', adminRoutes)
+
 app.use('/api/v1/advocates', advocateRoutes)
+app.use('/api/advocates', advocateRoutes)
+
 app.use('/api/v1/advocate', advocateDashboardRoutes)
+app.use('/api/advocate', advocateDashboardRoutes)
 
 // Global 404 Handler
 app.use((req, res, next) => {
